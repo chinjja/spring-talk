@@ -65,8 +65,8 @@ public class FriendControllerTests {
 				.other(other)
 				.build();
 		
-		doReturn(user).when(userService).loadUserByUsername("user");
-		doReturn(other).when(userService).loadUserByUsername("other");
+		doReturn(user).when(userService).getByUsername("user");
+		doReturn(other).when(userService).getByUsername("other");
 	}
 	@Test
 	@WithMockCustomUser

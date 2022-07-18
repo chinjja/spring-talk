@@ -31,7 +31,7 @@ public class TokenRepositoryTests {
 	@BeforeEach
 	void setUp() {
 		user = userRepository.save(User.builder()
-				.username("user")
+				.username("user@gmail.com")
 				.password("1234")
 				.build());
 		entityManager.flush();

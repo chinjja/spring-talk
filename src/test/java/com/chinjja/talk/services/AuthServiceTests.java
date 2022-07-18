@@ -3,6 +3,7 @@ package com.chinjja.talk.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.chinjja.talk.domain.auth.common.JwtTokenProvider;
 import com.chinjja.talk.domain.auth.dao.TokenRepository;
+import com.chinjja.talk.domain.auth.dto.LoginRequest;
+import com.chinjja.talk.domain.auth.dto.RefreshTokenRequest;
+import com.chinjja.talk.domain.auth.dto.RegisterRequest;
 import com.chinjja.talk.domain.auth.model.Token;
 import com.chinjja.talk.domain.auth.services.AuthService;
 import com.chinjja.talk.domain.user.model.User;
@@ -71,7 +75,10 @@ public class AuthServiceTests {
 		when(passwordEncoder.encode("password")).thenReturn("encoded");
 		when(userService.save(encodedUser)).thenReturn(encodedUser);
 		
-		var actual = authService.register("username", "password");
+		var actual = authService.register(RegisterRequest.builder()
+				.username("username")
+				.password("password")
+				.build());
 		assertEquals(encodedUser, actual);
 		
 		verify(userService).save(encodedUser);
@@ -82,9 +89,10 @@ public class AuthServiceTests {
 		when(passwordEncoder.encode("1234")).thenReturn("encoded");
 		authService.initAdmin();
 		verify(userService).save(User.builder()
-				.username("admin")
+				.username("admin@admin.com")
 				.password("encoded")
 				.build());
+		verify(userService).addRole(any(), eq("ROLE_USER"), eq("ROLE_ADMIN"));
 	}
 	
 	@Test
@@ -96,12 +104,17 @@ public class AuthServiceTests {
 	
 	@Test
 	void login() {
-		when(userService.loadUserByUsername(any())).thenReturn(user);
+		when(userService.getByUsername(user.getUsername())).thenReturn(user);
 		when(authenticationManager.authenticate(any())).thenReturn(null);
 		when(jwtTokenProvider.generateAccessToken(any())).thenReturn(accessToken);
 		when(jwtTokenProvider.generateRefreshToken(any())).thenReturn(refreshToken);
+		when(tokenRepository.findByUser(user)).thenReturn(token);
+		when(tokenRepository.save(token)).thenReturn(token);
 		
-		authService.login("user", "1234");
+		authService.login(LoginRequest.builder()
+				.username("user")
+				.password("1234")
+				.build());
 		
 		verify(tokenRepository).save(Token.builder()
 				.user(user)
@@ -114,7 +127,10 @@ public class AuthServiceTests {
 	void whenAuthenticateThrowsException_thenShouldFail() {
 		when(authenticationManager.authenticate(any())).thenThrow(new RuntimeException());
 		assertThrows(Exception.class, () -> {
-			authService.login("user", "1234");
+			authService.login(LoginRequest.builder()
+					.username("user")
+					.password("1234")
+					.build());
 		});
 		verify(tokenRepository, never()).save(any());
 	}
@@ -134,7 +150,7 @@ public class AuthServiceTests {
 	@Test
 	void refresh() {
 		var newAccessToken = "newAccessToken";
-		when(userService.loadUserByUsername(user.getUsername())).thenReturn(user);
+		when(userService.getByUsername(user.getUsername())).thenReturn(user);
 		when(tokenRepository.findByUser(user)).thenReturn(token);
 		when(tokenRepository.save(any())).thenReturn(token.toBuilder().
 				accessToken(newAccessToken)
@@ -143,7 +159,11 @@ public class AuthServiceTests {
 		when(jwtTokenProvider.validateRefreshToken(token.getRefreshToken())).thenReturn(true);
 		when(jwtTokenProvider.getUsernameFromToken(token.getAccessToken())).thenReturn(user.getUsername());
 		
-		var newToken = authService.refresh(accessToken, refreshToken);
+		var dto = RefreshTokenRequest.builder()
+				.accessToken(accessToken)
+				.refreshToken(refreshToken)
+				.build();
+		var newToken = authService.refresh(dto);
 		assertEquals(newAccessToken, newToken.getAccessToken());
 		assertEquals(refreshToken, newToken.getRefreshToken());
 		

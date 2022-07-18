@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.chinjja.talk.domain.auth.common.JwtTokenProvider;
 import com.chinjja.talk.domain.auth.dao.TokenRepository;
+import com.chinjja.talk.domain.auth.dto.LoginRequest;
+import com.chinjja.talk.domain.auth.dto.LoginResponse;
+import com.chinjja.talk.domain.auth.dto.RefreshTokenRequest;
+import com.chinjja.talk.domain.auth.dto.RegisterRequest;
 import com.chinjja.talk.domain.auth.exception.RefreshTokenException;
 import com.chinjja.talk.domain.auth.model.Token;
 import com.chinjja.talk.domain.user.model.User;
@@ -29,7 +33,9 @@ public class AuthService {
 
 
 	@Transactional
-	public User register(String username, String password) {
+	public User register(RegisterRequest dto) {
+		var username = dto.getUsername();
+		var password = dto.getPassword();
 		log.info("register: {}", username);
 		return userService.save(User.builder()
 				.username(username)
@@ -40,16 +46,22 @@ public class AuthService {
 	@Transactional
 	public void initAdmin() {
 		if(!userService.hasAnyUser()) {
-			register("admin", "1234");
+			var admin = register(RegisterRequest.builder()
+					.username("admin@admin.com")
+					.password("1234")
+					.build());
+			userService.addRole(admin, "ROLE_USER", "ROLE_ADMIN");
 		}
 	}
 	
 	@Transactional
-	public Token login(String username, String password) {
+	public LoginResponse login(LoginRequest dto) {
+		var username = dto.getUsername();
+		var password = dto.getPassword();
 		var auth = new UsernamePasswordAuthenticationToken(username, password);
 		authenticationManager.authenticate(auth);
 		
-		var user = userService.loadUserByUsername(username);
+		var user = userService.getByUsername(username);
 		var token = tokenRepository.findByUser(user);
 		var accessToken = jwtTokenProvider.generateAccessToken(user);
 		var refreshToken = jwtTokenProvider.generateRefreshToken(user);
@@ -59,7 +71,11 @@ public class AuthService {
 		}
 		token.setAccessToken(accessToken);
 		token.setRefreshToken(refreshToken);
-		return tokenRepository.save(token);
+		token = tokenRepository.save(token);
+		return LoginResponse.builder()
+				.token(token)
+				.emailVerified(!user.getAuthorities().isEmpty())
+				.build();
 	}
 	
 	@Transactional
@@ -70,9 +86,11 @@ public class AuthService {
 	}
 	
 	@Transactional
-	public Token refresh(String accessToken, String refreshToken) {
+	public Token refresh(RefreshTokenRequest dto) {
+		var accessToken = dto.getAccessToken();
+		var refreshToken = dto.getRefreshToken();
 		var username = jwtTokenProvider.getUsernameFromToken(accessToken);
-		var user = userService.loadUserByUsername(username);
+		var user = userService.getByUsername(username);
 		var token = tokenRepository.findByUser(user);
 		if(token == null) {
 			throw new RefreshTokenException();

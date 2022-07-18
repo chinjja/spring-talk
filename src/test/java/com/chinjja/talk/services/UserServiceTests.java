@@ -66,7 +66,7 @@ class UserServiceTests {
 	@Test
 	void loadUserByUsername() {
 		when(userRepository.findByUsername("username")).thenReturn(user);
-		var loadedUser = userService.loadUserByUsername("username");
+		var loadedUser = userService.getByUsername("username");
 		assertEquals(user, loadedUser);
 	}
 	
@@ -74,7 +74,7 @@ class UserServiceTests {
 	void whenUsernameIsNotExists_thenShouldThrowAUsernameNotFoundException() {
 		when(userRepository.findByUsername("username")).thenThrow(new UsernameNotFoundException("username"));
 		assertThrows(UsernameNotFoundException.class, () -> {
-			userService.loadUserByUsername("username");
+			userService.getByUsername("username");
 		});
 	}
 }

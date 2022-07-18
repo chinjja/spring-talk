@@ -29,7 +29,7 @@ public class FriendService {
 		if(user.getUsername().equals(username)) {
 			throw new IllegalArgumentException("cannat self friend");
 		}
-		var other = userService.loadUserByUsername(username);
+		var other = userService.getByUsername(username);
 		if(isFriend(user, other)) {
 			throw new IllegalArgumentException("already friend");
 		}

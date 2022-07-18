@@ -34,11 +34,11 @@ class ChatRepositoryTests {
 	@BeforeEach
 	void setUp() {
 		owner = memberRepository.save(User.builder()
-				.username("owner")
+				.username("owner@gmail.com")
 				.password("1234")
 				.build());
 		user = memberRepository.save(User.builder()
-				.username("user")
+				.username("user@gmail.com")
 				.password("1234")
 				.build());
 		entityManager.flush();

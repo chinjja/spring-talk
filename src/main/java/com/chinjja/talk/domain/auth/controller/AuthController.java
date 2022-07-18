@@ -9,9 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.chinjja.talk.domain.auth.dto.LoginRequest;
+import com.chinjja.talk.domain.auth.dto.LoginResponse;
 import com.chinjja.talk.domain.auth.dto.RefreshTokenRequest;
-import com.chinjja.talk.domain.auth.dto.UsernamePasswordRequest;
-import com.chinjja.talk.domain.auth.exception.RefreshTokenException;
+import com.chinjja.talk.domain.auth.dto.RegisterRequest;
 import com.chinjja.talk.domain.auth.model.Token;
 import com.chinjja.talk.domain.auth.services.AuthService;
 import com.chinjja.talk.domain.user.model.User;
@@ -27,14 +28,14 @@ public class AuthController {
 	
 	@PostMapping("/register")
 	@ResponseStatus(HttpStatus.CREATED)
-	public String register(@RequestBody UsernamePasswordRequest dto) {
-		var member = authService.register(dto.getUsername(), dto.getPassword());
+	public String register(@RequestBody RegisterRequest dto) {
+		var member = authService.register(dto);
 		return member.getUsername();
 	}
 	
 	@PostMapping("/login")
-	public Token login(@RequestBody UsernamePasswordRequest dto) {
-		return authService.login(dto.getUsername(), dto.getPassword());
+	public LoginResponse login(@RequestBody LoginRequest dto) {
+		return authService.login(dto);
 	}
 	
 	@PostMapping("/logout")
@@ -43,7 +44,7 @@ public class AuthController {
 	}
 	
 	@PostMapping("/refresh")
-	public Token refresh(@RequestBody RefreshTokenRequest dto) throws RefreshTokenException {
-		return authService.refresh(dto.getAccessToken(), dto.getRefreshToken());
+	public Token refresh(@RequestBody RefreshTokenRequest dto) {
+		return authService.refresh(dto);
 	}
 }

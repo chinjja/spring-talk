@@ -20,6 +20,6 @@ public class UserController {
 	
 	@GetMapping("/{username}")
 	public User getUserByUsername(@PathVariable("username") String username) {
-		return userService.loadUserByUsername(username);
+		return userService.getByUsername(username);
 	}
 }

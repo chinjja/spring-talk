@@ -69,7 +69,7 @@ public class FriendServiceTests {
 				.user(user)
 				.other(other)
 				.build();
-		doReturn(other).when(userService).loadUserByUsername("other");
+		doReturn(other).when(userService).getByUsername("other");
 		when(friendRepository.save(friend)).thenReturn(friend);
 		
 		friendService.addFriend(user, AddFriendRequest.builder()

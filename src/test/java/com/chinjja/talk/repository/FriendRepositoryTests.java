@@ -36,15 +36,15 @@ public class FriendRepositoryTests {
 	@BeforeEach
 	void setUp() {
 		user = memberRepository.save(User.builder()
-				.username("user")
+				.username("user@gmail.com")
 				.password("1234")
 				.build());
 		other1 = memberRepository.save(User.builder()
-				.username("other1")
+				.username("other1@gmail.com")
 				.password("1234")
 				.build());
 		other2 = memberRepository.save(User.builder()
-				.username("other2")
+				.username("other2@gmail.com")
 				.password("1234")
 				.build());
 		entityManager.flush();

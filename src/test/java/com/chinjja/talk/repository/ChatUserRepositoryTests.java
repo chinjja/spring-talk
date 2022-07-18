@@ -42,11 +42,11 @@ class ChatUserRepositoryTests {
 	@BeforeEach
 	void setUp() {
 		owner = userRepository.save(User.builder()
-				.username("owner")
+				.username("owner@gmail.com")
 				.password("1234")
 				.build());
 		user = userRepository.save(User.builder()
-				.username("user")
+				.username("user@gmail.com")
 				.password("1234")
 				.build());
 		chat = chatRepository.save(Chat.builder()

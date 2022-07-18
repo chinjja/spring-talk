@@ -163,7 +163,7 @@ class ChatServiceTests {
 				.user2(user)
 				.build();
 		
-		when(userService.loadUserByUsername("other")).thenReturn(user);
+		when(userService.getByUsername("other")).thenReturn(user);
 		when(directChatRepository.save(directChat)).thenReturn(directChat);
 		when(chatRepository.save(chat)).thenReturn(chat);
 		

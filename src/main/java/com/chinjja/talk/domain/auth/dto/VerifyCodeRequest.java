@@ -9,7 +9,6 @@ import lombok.Value;
 @Builder
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
-public class RefreshTokenRequest {
-	String accessToken;
-	String refreshToken;
+public class VerifyCodeRequest {
+	private String code;
 }

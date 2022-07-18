@@ -42,12 +42,12 @@ public class UserControllerTests {
 	}
 	@Test
 	void getByUsername() throws Exception {
-		when(userService.loadUserByUsername("user")).thenReturn(user);
+		when(userService.getByUsername("user")).thenReturn(user);
 		
 		mockMvc.perform(get("/users/user"))
 		.andExpect(status().isOk())
 		.andExpect(content().json(objectMapper.writeValueAsString(user)));
 		
-		verify(userService).loadUserByUsername("user");
+		verify(userService).getByUsername("user");
 	}
 }

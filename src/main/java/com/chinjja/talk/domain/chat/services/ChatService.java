@@ -63,7 +63,7 @@ public class ChatService {
 	
 	@Transactional
 	public Chat createDirectChat(User user, NewDirectChatRequest dto) {
-		var other = userService.loadUserByUsername(dto.getUsername());
+		var other = userService.getByUsername(dto.getUsername());
 		var directChat = getDirectChat(user, other);
 		if(directChat != null) {
 			throw new IllegalArgumentException("already exists direct chat");
@@ -93,7 +93,7 @@ public class ChatService {
 				.build());
 		
 		var users = dto.getUsernameList().stream()
-				.map(x -> userService.loadUserByUsername(x))
+				.map(x -> userService.getByUsername(x))
 				.collect(Collectors.toList());
 		for(User u : users) {
 			join(chat, u);
@@ -161,7 +161,7 @@ public class ChatService {
 	public List<Long> invite(Chat chat, InviteUserRequest dto) {
 		var chatUsers = new ArrayList<Long>();
 		var users = dto.getUsernameList().stream()
-				.map(x -> userService.loadUserByUsername(x))
+				.map(x -> userService.getByUsername(x))
 				.collect(Collectors.toList());
 		for(var user : users) {
 			chatUsers.add(join(chat, user).getId());

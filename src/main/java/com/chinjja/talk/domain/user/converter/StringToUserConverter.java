@@ -15,6 +15,6 @@ public class StringToUserConverter implements Converter<String, User> {
 	
 	@Override
 	public User convert(String source) {
-		return userService.loadUserByUsername(source);
+		return userService.getByUsername(source);
 	}
 }
