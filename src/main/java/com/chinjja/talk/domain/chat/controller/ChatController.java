@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/chats")
 @RequiredArgsConstructor
-@CrossOrigin
 public class ChatController {
 	private final ChatService chatService;
 	

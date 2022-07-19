@@ -10,6 +10,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.chinjja.talk.domain.auth.common.JwtAuthenticationEntryPoint;
 import com.chinjja.talk.domain.auth.common.JwtTokenProvider;
@@ -42,6 +45,8 @@ public class WebSecurityConfig {
 		.antMatchers("/verification/**").authenticated()
 		.anyRequest().hasRole("USER")
 		.and()
+		.cors()
+		.and()
 		.exceptionHandling()
 		.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 		.and()
@@ -55,5 +60,17 @@ public class WebSecurityConfig {
 	@Bean
 	JwtRequestFilter jwtRequestFilter() {
 		return new JwtRequestFilter(userDetailsService, jwtTokenProvider);
+	}
+	
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.addAllowedOriginPattern("*");
+		configuration.addAllowedMethod("*");
+		configuration.addAllowedHeader("*");
+		configuration.setMaxAge(3600L);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 }

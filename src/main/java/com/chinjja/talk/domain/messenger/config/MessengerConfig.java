@@ -25,7 +25,9 @@ public class MessengerConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/websocket").withSockJS();
+		registry.addEndpoint("/websocket")
+		.setAllowedOriginPatterns("*")
+		.withSockJS();
 	}
 
 	@Override
