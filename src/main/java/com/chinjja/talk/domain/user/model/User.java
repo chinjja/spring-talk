@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -43,6 +44,7 @@ public class User implements UserDetails {
 	
 	@Column(nullable = false)
 	@JsonIgnore
+	@ToString.Exclude
 	private String password;
 	
 	@ElementCollection(fetch = FetchType.EAGER)

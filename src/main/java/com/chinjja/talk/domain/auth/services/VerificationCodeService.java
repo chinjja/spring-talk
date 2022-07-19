@@ -17,7 +17,9 @@ import com.chinjja.talk.domain.user.services.UserService;
 import com.chinjja.talk.infra.mail.dto.TransactionalMailMessage;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VerificationCodeService {
@@ -46,6 +48,7 @@ public class VerificationCodeService {
 		vc.setCode(code);
 		verificationCodeRepository.save(vc);
 		applicationEventPublisher.publishEvent(new TransactionalMailMessage(auth, "Verification Code", code));
+		log.info("send code. {}, {}", auth, code);
 	}
 	
 	@Transactional
@@ -62,6 +65,7 @@ public class VerificationCodeService {
 		
 		verificationCodeRepository.delete(vc);
 		userService.addRole(auth, "ROLE_USER");
+		log.info("verify code. {}, {}", auth, code);
 	}
 	
 	public boolean isVerified(User auth) {

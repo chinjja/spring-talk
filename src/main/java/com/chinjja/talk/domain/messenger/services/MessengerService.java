@@ -12,7 +12,9 @@ import com.chinjja.talk.domain.messenger.dto.ChatMessengerDto;
 import com.chinjja.talk.domain.user.model.User;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MessengerService {
@@ -36,11 +38,13 @@ public class MessengerService {
 	}
 	
 	private void toChat(Long chatId, String command, String objectType, Object payload) {
-		template.convertAndSend("/topic/chat/"+chatId, ChatMessengerDto.builder()
+		var data = ChatMessengerDto.builder()
 				.objectType(objectType)
 				.command(command)
 				.data(payload)
-				.build());
+				.build();
+		template.convertAndSend("/topic/chat/"+chatId, data);
+		log.info("send to chat. {}", data);
 	}
 	
 	public void toUser(User user, String command, Chat payload) {
@@ -52,10 +56,12 @@ public class MessengerService {
 	}
 	
 	private void toUser(User user, String command, String objectType, Object payload) {
-		template.convertAndSendToUser(user.getUsername(), "/topic/changed", ChatMessengerDto.builder()
+		var data = ChatMessengerDto.builder()
 				.objectType(objectType)
 				.command(command)
 				.data(payload)
-				.build());
+				.build();
+		template.convertAndSendToUser(user.getUsername(), "/topic/changed", data);
+		log.info("send to user. {}, {}", user, data);
 	}	
 }

@@ -15,7 +15,9 @@ import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FriendService {
@@ -34,11 +36,13 @@ public class FriendService {
 			throw new IllegalArgumentException("already friend");
 		}
 		applicationEventPublisher.publishEvent(new FriendAdded(user, other));
-
-		return friendRepository.save(Friend.builder()
+		
+		var friend = friendRepository.save(Friend.builder()
 				.user(user)
 				.other(other)
 				.build());
+		log.info("add friend. {}", friend);
+		return friend;
 	}
 
 	@Transactional
@@ -49,6 +53,7 @@ public class FriendService {
 		}
 		friendRepository.delete(friend);
 		applicationEventPublisher.publishEvent(new FriendDeleted(user, friend.getOther()));
+		log.info("remove friend. {}", friend);
 	}
 	
 	public boolean isFriend(User user, User other) {

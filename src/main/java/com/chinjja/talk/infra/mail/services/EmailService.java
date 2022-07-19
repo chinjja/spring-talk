@@ -18,13 +18,13 @@ public class EmailService {
 	private final JavaMailSender emailSender;
 	
 	public void sendSimpleMessage(User to, String subject, String text) {
-		log.info("send {}: " + text);
 		var message = new SimpleMailMessage();
-		message.setFrom("chinjja.app@gmail.com");
 		message.setTo(to.getUsername());
 		message.setSubject(subject);
 		message.setText(text);
+		
 		emailSender.send(message);
+		log.info("send email to: {}, message: {}", to, message);
 	}
 	
 	@TransactionalEventListener

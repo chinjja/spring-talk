@@ -24,7 +24,7 @@ public class ChatTransactionalEventService {
 
 	@TransactionalEventListener
 	public void onData(ChatAdded event) {
-		log.info("chat created: {}", event.getChat());
+		log.info("chat added: {}", event.getChat());
 		messengerService.toUser(event.getUser(), "added", event.getChat());
 	}
 	
@@ -36,7 +36,7 @@ public class ChatTransactionalEventService {
 	
 	@TransactionalEventListener
 	public void onData(ChatUserAdded event) {
-		log.info("chat user joined: {}", event.getChatUser());
+		log.info("chat user added: {}", event.getChatUser());
 		messengerService.toChat("added", event.getChatUser());
 	}
 	
@@ -48,7 +48,7 @@ public class ChatTransactionalEventService {
 	
 	@TransactionalEventListener
 	public void onData(ChatUserDeleted event) {
-		log.info("chat user leaved: {}", event.getChatUser());
+		log.info("chat user deleted: {}", event.getChatUser());
 		messengerService.toChat("removed", event.getChatUser());
 	}
 	
@@ -66,7 +66,7 @@ public class ChatTransactionalEventService {
 	
 	@TransactionalEventListener
 	public void onData(FriendDeleted event) {
-		log.info("friend added: {}", event.getUser());
+		log.info("friend deleted: {}", event.getUser());
 		messengerService.toUser(event.getUser(), "removed", event.getFriend());
 	}
 }

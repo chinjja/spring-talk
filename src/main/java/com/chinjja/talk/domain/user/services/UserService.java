@@ -11,7 +11,9 @@ import com.chinjja.talk.domain.user.dao.UserRepository;
 import com.chinjja.talk.domain.user.model.User;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -22,7 +24,9 @@ public class UserService {
 		if(existsByUsername(user.getUsername())) {
 			throw new IllegalArgumentException("already exists username");
 		}
-		return userRepository.save(user);
+		user = userRepository.save(user);
+		log.info("save. {}", user);
+		return user;
 	}
 	
 	public User getById(Long id) {
@@ -46,6 +50,7 @@ public class UserService {
 		var list = new HashSet<>(user.getRoles());
 		list.addAll(Arrays.asList(roles));
 		user.setRoles(list);
-		userRepository.save(user);
+		user = userRepository.save(user);
+		log.info("add role success. {}", user);
 	}
 }

@@ -19,7 +19,9 @@ import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.FriendService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/friends")
 @RequiredArgsConstructor
@@ -37,6 +39,7 @@ public class FriendController {
 	public User addFriend(
 			@AuthenticationPrincipal User user,
 			@RequestBody AddFriendRequest dto) {
+		log.info("add friend. {}, {}", user, dto);
 		var friend = friendService.addFriend(user, dto);
 		return friend.getOther();
 	}
@@ -45,6 +48,7 @@ public class FriendController {
 	public void removeFriend(
 			@AuthenticationPrincipal User user,
 			@PathVariable("username") User other) {
+		log.info("remove friend. {}, {}", user, other);
 		friendService.removeFriend(user, other);
 	}
 	

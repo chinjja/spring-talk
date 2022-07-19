@@ -36,11 +36,12 @@ public class AuthService {
 	public User register(RegisterRequest dto) {
 		var username = dto.getUsername();
 		var password = dto.getPassword();
-		log.info("register: {}", username);
-		return userService.save(User.builder()
+		var user = userService.save(User.builder()
 				.username(username)
 				.password(passwordEncoder.encode(password))
 				.build());
+		log.info("register. {}", user);
+		return user;
 	}
 	
 	@Transactional
@@ -51,6 +52,7 @@ public class AuthService {
 					.password("1234")
 					.build());
 			userService.addRole(admin, "ROLE_USER", "ROLE_ADMIN");
+			log.info("init admin {}", admin);
 		}
 	}
 	
@@ -72,6 +74,7 @@ public class AuthService {
 		token.setAccessToken(accessToken);
 		token.setRefreshToken(refreshToken);
 		token = tokenRepository.save(token);
+		log.info("login. {}, {}", dto, token);
 		return LoginResponse.builder()
 				.token(token)
 				.emailVerified(!user.getAuthorities().isEmpty())
@@ -82,6 +85,7 @@ public class AuthService {
 	public void logout(User user) {
 		if(user != null) {
 			tokenRepository.deleteByUser(user);
+			log.info("logout. {}", user);
 		}
 	}
 	
@@ -102,6 +106,7 @@ public class AuthService {
 		}
 		var newAccessToken = jwtTokenProvider.generateAccessToken(user);
 		token.setAccessToken(newAccessToken);
+		log.info("refresh token. {}, {}", user, token);
 		return tokenRepository.save(token);
 	}
 }

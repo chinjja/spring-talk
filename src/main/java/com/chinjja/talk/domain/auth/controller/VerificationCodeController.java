@@ -13,7 +13,9 @@ import com.chinjja.talk.domain.auth.services.VerificationCodeService;
 import com.chinjja.talk.domain.user.model.User;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/verification")
 @CrossOrigin
@@ -23,6 +25,7 @@ public class VerificationCodeController {
 	
 	@PostMapping("/send-code")
 	public void sendCode(@AuthenticationPrincipal User user) {
+		log.info("send code. {}", user);
 		verificationCodeService.sendCode(user);
 	}
 	
@@ -30,6 +33,7 @@ public class VerificationCodeController {
 	public void verifyCode(
 			@AuthenticationPrincipal User user,
 			@RequestBody VerifyCodeRequest dto) {
+		log.info("verify code. {}, {}", user, dto);
 		verificationCodeService.verifyCode(user, dto.getCode());
 	}
 	
