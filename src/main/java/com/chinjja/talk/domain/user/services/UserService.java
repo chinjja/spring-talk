@@ -3,9 +3,8 @@ package com.chinjja.talk.domain.user.services;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import javax.transaction.Transactional;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.chinjja.talk.domain.user.dao.UserRepository;
 import com.chinjja.talk.domain.user.model.User;
@@ -16,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 	private final UserRepository userRepository;
 	

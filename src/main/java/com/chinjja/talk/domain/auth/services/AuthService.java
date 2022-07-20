@@ -1,11 +1,10 @@
 package com.chinjja.talk.domain.auth.services;
 
-import javax.transaction.Transactional;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.chinjja.talk.domain.auth.common.JwtTokenProvider;
 import com.chinjja.talk.domain.auth.dao.TokenRepository;
@@ -24,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
 	private final AuthenticationManager authenticationManager;
 	private final TokenRepository tokenRepository;

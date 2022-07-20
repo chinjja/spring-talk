@@ -39,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ChatService {
 	private final ChatRepository chatRepository;
 	private final DirectChatRepository directChatRepository;

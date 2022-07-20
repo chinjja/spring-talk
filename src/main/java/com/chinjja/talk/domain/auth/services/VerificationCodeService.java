@@ -4,10 +4,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
-import javax.transaction.Transactional;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.chinjja.talk.domain.auth.common.RandomProvider;
 import com.chinjja.talk.domain.auth.dao.VerificationCodeRepository;
@@ -22,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class VerificationCodeService {
 	private final RandomProvider randomProvider;
 	private final UserService userService;
