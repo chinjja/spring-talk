@@ -12,6 +12,7 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
 	@Override
 	public SecurityContext createSecurityContext(WithMockCustomUser mock) {
 		var principal = User.builder()
+				.id(1L)
 				.username(mock.username())
 				.password(mock.password())
 				.build();

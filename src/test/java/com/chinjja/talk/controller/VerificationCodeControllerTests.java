@@ -44,6 +44,7 @@ public class VerificationCodeControllerTests {
 	@BeforeEach
 	void setUp() {
 		user = User.builder()
+				.id(1L)
 				.username("user")
 				.password("1234")
 				.build();

@@ -48,11 +48,13 @@ public class FriendServiceTests {
 	@BeforeEach
 	void setUp() {
 		user = User.builder()
+				.id(1L)
 				.username("user")
 				.password("")
 				.build();
 		
 		other = User.builder()
+				.id(2L)
 				.username("other")
 				.password("")
 				.build();
