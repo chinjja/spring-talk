@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -89,18 +91,23 @@ class ChatRepositoryTests {
 					.visible(false)
 					.title("user chat2")
 					.build());
-		}
-		
-		@Test
-		void find_chat() {
-			var data = chatRepository.findAll();
-			assertThat(data).containsExactlyInAnyOrder(ownerChat, userChat1, userChat2);
+			
+			entityManager.flush();
+			entityManager.clear();
 		}
 		
 		@Test
 		void find_openchat() {
-			var data = chatRepository.findByVisible(true);
-			assertThat(data).containsExactlyInAnyOrder(ownerChat, userChat1);
+			var data = chatRepository.findByVisible(true).stream()
+					.map(x -> x.getId())
+					.collect(Collectors.toList());
+			assertThat(data).containsExactlyInAnyOrder(ownerChat.getId(), userChat1.getId());
+		}
+		
+		@Test
+		void find_by_id() {
+			var data = chatRepository.findById(userChat2.getId());
+			assertEquals(userChat2.getId(), data.getId());
 		}
 	}
 }

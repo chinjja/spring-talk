@@ -59,18 +59,11 @@ public class FriendServiceTests {
 				.password("")
 				.build();
 		
-		friend = Friend.builder()
-				.user(user)
-				.other(other)
-				.build();
+		friend = new Friend(user, other);
 	}
 	
 	@Test
 	void addFriend() {
-		var friend = Friend.builder()
-				.user(user)
-				.other(other)
-				.build();
 		doReturn(other).when(userService).getByUsername("other");
 		when(friendRepository.save(friend)).thenReturn(friend);
 		

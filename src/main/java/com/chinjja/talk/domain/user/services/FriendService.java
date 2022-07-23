@@ -38,10 +38,7 @@ public class FriendService {
 		}
 		applicationEventPublisher.publishEvent(new FriendAdded(user, other));
 		
-		var friend = friendRepository.save(Friend.builder()
-				.user(user)
-				.other(other)
-				.build());
+		var friend = friendRepository.save(new Friend(user, other));
 		log.info("add friend. {}", friend);
 		return friend;
 	}

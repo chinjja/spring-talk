@@ -15,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.chinjja.talk.domain.user.controller.UserController;
+import com.chinjja.talk.domain.user.dto.UserDto;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,9 +45,13 @@ public class UserControllerTests {
 	void getByUsername() throws Exception {
 		when(userService.getByUsername("user")).thenReturn(user);
 		
+		var dto = UserDto.builder()
+				.username(user.getUsername())
+				.build();
+		
 		mockMvc.perform(get("/users/user"))
 		.andExpect(status().isOk())
-		.andExpect(content().json(objectMapper.writeValueAsString(user)));
+		.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		
 		verify(userService).getByUsername("user");
 	}

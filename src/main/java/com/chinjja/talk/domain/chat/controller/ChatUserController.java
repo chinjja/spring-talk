@@ -1,6 +1,7 @@
 package com.chinjja.talk.domain.chat.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,9 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.chinjja.talk.domain.chat.converter.ChatUserToChatUserDtoConverter;
+import com.chinjja.talk.domain.chat.dto.ChatUserDto;
 import com.chinjja.talk.domain.chat.dto.InviteUserRequest;
 import com.chinjja.talk.domain.chat.model.Chat;
-import com.chinjja.talk.domain.chat.model.ChatUser;
 import com.chinjja.talk.domain.chat.services.ChatService;
 import com.chinjja.talk.domain.user.model.User;
 
@@ -23,19 +25,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatUserController {
 	private final ChatService chatService;
+	private final ChatUserToChatUserDtoConverter toChatUserDtoConverter;
 	
 	@PostMapping("/invite")
-	public List<Long> invite(
+	public void invite(
 			@RequestParam("chatId") Chat chat,
 			@RequestBody InviteUserRequest dto) {
-		return chatService.invite(chat, dto);
+		chatService.invite(chat, dto);
 	}
 	
 	@PostMapping("/join")
-	public Long join(
+	public void join(
 			@RequestParam("chatId") Chat chat,
 			@AuthenticationPrincipal User user) {
-		return chatService.joinToChat(chat, user).getId();
+		chatService.joinToChat(chat, user);
 	}
 	
 	@PostMapping("/leave")
@@ -46,13 +49,12 @@ public class ChatUserController {
 	}
 	
 	@GetMapping
-	public List<ChatUser> getChatUsers(
+	public List<ChatUserDto> getChatUsers(
 			@RequestParam("chatId") Chat chat,
-			@RequestParam(value = "idList", required = false) List<Long> idList,
 			@AuthenticationPrincipal User user) {
-		if(idList == null) {
-			return chatService.getUserList(chat, user);
-		}
-		return chatService.getUserList(chat, user, idList);
+		var chatUser = chatService.getUserList(chat, user);
+		return chatUser.stream()
+				.map(toChatUserDtoConverter::convert)
+				.collect(Collectors.toList());
 	}
 }

@@ -65,14 +65,8 @@ class ChatMessageRepositoryTests {
 				.owner(owner)
 				.title("chat1")
 				.build());
-		ownerSender = chatMemberRepository.save(ChatUser.builder()
-				.chat(chat)
-				.user(owner)
-				.build());
-		userSender = chatMemberRepository.save(ChatUser.builder()
-				.chat(chat)
-				.user(user)
-				.build());
+		ownerSender = chatMemberRepository.save(new ChatUser(chat, owner));
+		userSender = chatMemberRepository.save(new ChatUser(chat, user));
 		entityManager.flush();
 		entityManager.clear();
 	}

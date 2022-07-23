@@ -1,31 +1,46 @@
 package com.chinjja.talk.domain.user.model;
 
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.MapsId;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder(toBuilder = true)
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "other_id"}))
 public class Friend {
-	@Id
-	@GeneratedValue
-	private Long id;
+	@EmbeddedId
+	private Id id;
 	
-	@ManyToOne(optional = false)
+	@MapsId("user_id")
+	@ManyToOne
 	private User user;
 	
-	@ManyToOne(optional = false)
+	@MapsId("other_id")
+	@ManyToOne
 	private User other;
+	
+	public Friend(User user, User other) {
+		this.id = new Id(user.getId(), other.getId());
+		this.user = user;
+		this.other = other;
+	}
+	
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Id implements Serializable {
+		@Column(name = "user_id")
+		private long userId;
+		
+		@Column(name = "other_id")
+		private long otherId;
+	}
 }

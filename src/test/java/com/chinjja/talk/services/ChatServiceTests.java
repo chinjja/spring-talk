@@ -94,35 +94,23 @@ class ChatServiceTests {
 				.owner(owner)
 				.build();
 		
-		ownerMember = ChatUser.builder()
-				.id(1L)
-				.chat(chat)
-				.user(owner)
-				.build();
-		
-		userMember = ChatUser.builder()
-				.id(2L)
-				.chat(chat)
-				.user(user)
-				.build();
+		ownerMember = new ChatUser(chat, owner);
+		userMember = new ChatUser(chat, user);
 	}
 	
 	@Test
 	void createOpenChat() {
-		var chat = Chat.builder()
+		var chatNoId = Chat.builder()
 				.visible(true)
 				.joinable(true)
 				.title("chat1")
 				.description("desc")
 				.owner(owner)
 				.build();
+		var chat = chatNoId.toBuilder().id(1L).build();
+		var chatUser = new ChatUser(chat, owner);
 		
-		var chatUser = ChatUser.builder()
-				.chat(chat)
-				.user(owner)
-				.build();
-		
-		when(chatRepository.save(chat)).thenReturn(chat);
+		when(chatRepository.save(chatNoId)).thenReturn(chat);
 		when(chatUserRepository.save(chatUser)).thenReturn(chatUser);
 		
 		var dto = NewOpenChatRequest.builder()
@@ -133,7 +121,7 @@ class ChatServiceTests {
 		var actual = chatService.createOpenChat(owner, dto);
 		assertEquals(chat, actual);
 		
-		verify(chatRepository).save(chat);
+		verify(chatRepository).save(chatNoId);
 		verify(chatUserRepository).save(chatUser);
 	}
 	
@@ -154,8 +142,9 @@ class ChatServiceTests {
 	
 	@Test
 	void createDirectChat() {
-		var chat = Chat.builder()
+		var chatNoId = Chat.builder()
 				.build();
+		var chat = chatNoId.toBuilder().id(1L).build();
 		
 		var directChat = DirectChat.builder()
 				.chat(chat)
@@ -165,7 +154,7 @@ class ChatServiceTests {
 		
 		when(userService.getByUsername("other")).thenReturn(user);
 		when(directChatRepository.save(directChat)).thenReturn(directChat);
-		when(chatRepository.save(chat)).thenReturn(chat);
+		when(chatRepository.save(chatNoId)).thenReturn(chat);
 		
 		var savedChat = chatService.createDirectChat(owner, NewDirectChatRequest.builder()
 				.username("other")
@@ -175,15 +164,9 @@ class ChatServiceTests {
 		
 		verify(directChatRepository).findByUser1AndUser2(owner, user);
 		verify(directChatRepository).save(directChat);
-		verify(chatRepository).save(chat);
-		verify(chatUserRepository).save(ChatUser.builder()
-				.chat(chat)
-				.user(user)
-				.build());
-		verify(chatUserRepository).save(ChatUser.builder()
-				.chat(chat)
-				.user(owner)
-				.build());
+		verify(chatRepository).save(chatNoId);
+		verify(chatUserRepository).save(new ChatUser(chat, user));
+		verify(chatUserRepository).save(new ChatUser(chat, owner));
 	}
 	
 	@Test
@@ -207,13 +190,11 @@ class ChatServiceTests {
 	@Test
 	void joinToChat() {
 		var chat = Chat.builder()
+				.id(1L)
 				.joinable(true)
 				.build();
 		chatService.joinToChat(chat, user);
-		verify(chatUserRepository).save(ChatUser.builder()
-				.chat(chat)
-				.user(user)
-				.build());
+		verify(chatUserRepository).save(new ChatUser(chat, user));
 	}
 	
 	@Test
@@ -331,7 +312,7 @@ class ChatServiceTests {
 	
 	@Test
 	void getJoinedChatList() {
-		when(chatRepository.findJoinedChats(owner)).thenReturn(Arrays.asList(chat));
+		when(chatUserRepository.findByUser(owner)).thenReturn(Arrays.asList(ownerMember));
 		
 		var actual = chatService.getJoinedChatList(owner);
 		assertEquals(Arrays.asList(chat), actual);
@@ -348,17 +329,15 @@ class ChatServiceTests {
 	@Test
 	void invite() {
 		var chat = Chat.builder()
+				.id(1L)
 				.joinable(true)
 				.build();
 		when(userService.getByUsername(user.getUsername())).thenReturn(user);
-		when(chatUserRepository.save(any())).thenReturn(userMember);
+		when(chatUserRepository.save(new ChatUser(chat, user))).thenReturn(userMember);
 		chatService.invite(chat, InviteUserRequest.builder()
 				.usernameList(Arrays.asList(user.getUsername()))
 				.build());
-		verify(chatUserRepository).save(ChatUser.builder()
-				.chat(chat)
-				.user(user)
-				.build());
+		verify(chatUserRepository).save(new ChatUser(chat, user));
 	}
 	
 	@Test

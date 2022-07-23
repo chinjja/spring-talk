@@ -4,8 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -59,10 +60,7 @@ class ChatUserRepositoryTests {
 	
 	@Test
 	void save() {
-		var data = chatUserRepository.save(ChatUser.builder()
-				.chat(chat)
-				.user(user)
-				.build());
+		var data = chatUserRepository.save(new ChatUser(chat, user));
 		entityManager.flush();
 		
 		assertNotNull(data.getId());
@@ -71,28 +69,8 @@ class ChatUserRepositoryTests {
 	}
 	
 	@Test
-	void require_chat() {
-		assertThrows(Exception.class, () -> {
-			chatUserRepository.save(ChatUser.builder()
-					.user(user)
-					.build());
-			entityManager.flush();
-		});
-	}
-	
-	@Test
-	void require_member() {
-		assertThrows(Exception.class, () -> {
-			chatUserRepository.save(ChatUser.builder()
-					.chat(chat)
-					.build());
-			entityManager.flush();
-		});
-	}
-	
-	@Test
 	void findByUser() {
-		var data = chatRepository.findJoinedChats(user);
+		var data = chatUserRepository.findByUser(user);
 		assertTrue(data.isEmpty());
 	}
 	
@@ -122,28 +100,25 @@ class ChatUserRepositoryTests {
 		
 		@BeforeEach
 		void setUp() {
-			ownerMember = chatUserRepository.save(ChatUser.builder()
-					.chat(chat)
-					.user(owner)
-					.build());
-			userMember = chatUserRepository.save(ChatUser.builder()
-					.chat(chat)
-					.user(user)
-					.build());
+			ownerMember = chatUserRepository.save(new ChatUser(chat, owner));
+			userMember = chatUserRepository.save(new ChatUser(chat, user));
 			entityManager.flush();
 			entityManager.clear();
 		}
 		
 		@Test
 		void findByUser() {
-			var data = chatRepository.findJoinedChats(user);
-			assertThat(data).containsExactly(chat);
+			var data = chatUserRepository.findByUser(user);
+			assertEquals(1, data.size());
+			assertEquals(chat.getId(), data.get(0).getChat().getId());
 		}
 		
 		@Test
 		void findByChat() {
-			var data = chatUserRepository.findByChat(chat);
-			assertThat(data).containsExactlyInAnyOrder(ownerMember, userMember);
+			var data = chatUserRepository.findByChat(chat).stream()
+					.map(x -> x.getId())
+					.collect(Collectors.toList());
+			assertThat(data).containsExactlyInAnyOrder(ownerMember.getId(), userMember.getId());
 		}
 	}
 }

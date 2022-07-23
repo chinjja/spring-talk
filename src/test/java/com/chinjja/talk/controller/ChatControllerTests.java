@@ -9,11 +9,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,7 +26,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.chinjja.talk.converter.StringToChatConverter;
 import com.chinjja.talk.domain.chat.controller.ChatController;
-import com.chinjja.talk.domain.chat.dto.ChatInfo;
+import com.chinjja.talk.domain.chat.dto.ChatDto;
+import com.chinjja.talk.domain.chat.dto.ChatInfoDto;
+import com.chinjja.talk.domain.chat.dto.ChatMessageDto;
 import com.chinjja.talk.domain.chat.dto.NewDirectChatRequest;
 import com.chinjja.talk.domain.chat.dto.NewGroupChatRequest;
 import com.chinjja.talk.domain.chat.dto.NewOpenChatRequest;
@@ -45,6 +49,9 @@ public class ChatControllerTests {
 	
 	@Autowired
 	ObjectMapper objectMapper;
+	
+	@Autowired
+	ModelMapper modelMapper;
 	
 	@MockBean
 	ChatService chatService;
@@ -147,16 +154,17 @@ public class ChatControllerTests {
 			var chat = Chat.builder()
 					.title("chat")
 					.build();
-			var res = new ArrayList<Chat>();
-			res.add(chat);
-			res.add(chat);
+			var res = Arrays.asList(chat, chat);
+			var dto = res.stream()
+					.map(x -> modelMapper.map(x, ChatDto.class))
+					.collect(Collectors.toList());
 			
 			doReturn(res).when(chatService).getPublicChats();
 			
 			mockMvc.perform(get("/chats")
 					.param("type", "open"))
 			.andExpect(status().isOk())
-			.andExpect(content().json(objectMapper.writeValueAsString(res)));
+			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		}
 		
 		@Test
@@ -164,16 +172,17 @@ public class ChatControllerTests {
 			var chat = Chat.builder()
 					.title("chat")
 					.build();
-			var res = new ArrayList<Chat>();
-			res.add(chat);
-			res.add(chat);
+			var res = Arrays.asList(chat, chat);
+			var dto = res.stream()
+					.map(x -> modelMapper.map(x, ChatDto.class))
+					.collect(Collectors.toList());
 			
 			doReturn(res).when(chatService).getJoinedChatList(user);
 			
 			mockMvc.perform(get("/chats")
 					.param("type", "join"))
 			.andExpect(status().isOk())
-			.andExpect(content().json(objectMapper.writeValueAsString(res)));
+			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		}
 		
 		@Test
@@ -200,10 +209,10 @@ public class ChatControllerTests {
 					.message("hello")
 					.build();
 			
-			var info = ChatInfo.builder()
+			var info = ChatInfoDto.builder()
 					.unreadCount(10)
 					.userCount(11)
-					.latestMessage(message)
+					.latestMessage(modelMapper.map(message, ChatMessageDto.class))
 					.build();
 			
 			doReturn(chat).when(stringToChatConverter).convert("1");

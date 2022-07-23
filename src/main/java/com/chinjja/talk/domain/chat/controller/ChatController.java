@@ -1,6 +1,7 @@
 package com.chinjja.talk.domain.chat.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chinjja.talk.domain.chat.dto.ChatInfo;
+import com.chinjja.talk.domain.chat.converter.ChatToChatDtoConverter;
+import com.chinjja.talk.domain.chat.dto.ChatDto;
+import com.chinjja.talk.domain.chat.dto.ChatInfoDto;
 import com.chinjja.talk.domain.chat.dto.NewDirectChatRequest;
 import com.chinjja.talk.domain.chat.dto.NewGroupChatRequest;
 import com.chinjja.talk.domain.chat.dto.NewOpenChatRequest;
@@ -29,24 +32,31 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatController {
 	private final ChatService chatService;
+	private final ChatToChatDtoConverter toChatDtoConverter;
 	
 	@GetMapping
-	public List<Chat> getChats(
+	public List<ChatDto> getChats(
 			@RequestParam("type") String type,
 			@AuthenticationPrincipal User user) {
+		List<Chat> list = null;
 		switch(type) {
 		case "open":
-			return chatService.getPublicChats();
+			list = chatService.getPublicChats();
+			break;
 		case "join":
-			return chatService.getJoinedChatList(user);
+			list = chatService.getJoinedChatList(user);
+			break;
 		default:
 			throw new IllegalArgumentException("unknown type: " + type);
 		}
+		return list.stream()
+				.map(toChatDtoConverter::convert)
+				.collect(Collectors.toList());
 	}
 	
 	@GetMapping("/{id}")
-	public Chat getChat(@PathVariable("id") Chat chat) {
-		return chat;
+	public ChatDto getChat(@PathVariable("id") Chat chat) {
+		return toChatDtoConverter.convert(chat);
 	}
 	
 	@PostMapping("/open")
@@ -84,7 +94,7 @@ public class ChatController {
 	}
 	
 	@GetMapping("/{id}/info")
-	public ChatInfo info(
+	public ChatInfoDto info(
 			@PathVariable("id") Chat chat,
 			@AuthenticationPrincipal User user) {
 		return chatService.getChatInfo(chat, user);

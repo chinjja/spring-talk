@@ -10,9 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.chinjja.talk.domain.user.controller.FriendController;
 import com.chinjja.talk.domain.user.dto.AddFriendRequest;
+import com.chinjja.talk.domain.user.dto.UserDto;
 import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.FriendService;
@@ -38,6 +41,9 @@ public class FriendControllerTests {
 	@Autowired
 	ObjectMapper objectMapper;
 	
+	@Autowired
+	ModelMapper modelMapper;
+	
 	@MockBean
 	FriendService friendService;
 	
@@ -51,19 +57,18 @@ public class FriendControllerTests {
 	@BeforeEach
 	void setUp() {
 		user = User.builder()
+				.id(1L)
 				.username("user")
 				.password("1234")
 				.build();
 		
 		other = User.builder()
+				.id(2L)
 				.username("other")
 				.password("1234")
 				.build();
 		
-		friend = Friend.builder()
-				.user(user)
-				.other(other)
-				.build();
+		friend = new Friend(user, other);
 		
 		doReturn(user).when(userService).getByUsername("user");
 		doReturn(other).when(userService).getByUsername("other");
@@ -75,13 +80,15 @@ public class FriendControllerTests {
 		list.add(user);
 		list.add(other);
 		
-		var responseBody = objectMapper.writeValueAsString(list);
+		var dto = list.stream()
+				.map(x -> modelMapper.map(x, UserDto.class))
+				.collect(Collectors.toList());
 		
 		doReturn(list).when(friendService).getFriends(user);
 		
 		mockMvc.perform(get("/friends"))
 		.andExpect(status().isOk())
-		.andExpect(content().json(responseBody));
+		.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		
 		verify(friendService).getFriends(user);
 	}
@@ -89,7 +96,7 @@ public class FriendControllerTests {
 	@Test
 	@WithMockCustomUser
 	void getFriend() throws Exception {
-		var responseBody = objectMapper.writeValueAsString(other);
+		var responseBody = objectMapper.writeValueAsString(modelMapper.map(other, UserDto.class));
 		
 		doReturn(other).when(friendService).getFriend(user, other);
 		
@@ -107,7 +114,7 @@ public class FriendControllerTests {
 				.username("other")
 				.build();
 		var requestBody = objectMapper.writeValueAsString(requestDto);
-		var responseBody = objectMapper.writeValueAsString(other);
+		var responseBody = objectMapper.writeValueAsString(modelMapper.map(other, UserDto.class));
 		
 		
 		doReturn(friend).when(friendService).addFriend(user, requestDto);

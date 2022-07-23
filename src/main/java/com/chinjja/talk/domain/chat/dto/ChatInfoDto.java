@@ -1,18 +1,16 @@
 package com.chinjja.talk.domain.chat.dto;
 
-import com.chinjja.talk.domain.chat.model.ChatMessage;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Value;
 
-@Value
+@Data
 @Builder
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
-public class ChatInfo {
+public class ChatInfoDto {
 	private int unreadCount;
 	private int userCount;
-	private ChatMessage latestMessage;
+	private ChatMessageDto latestMessage;
 }

@@ -120,7 +120,7 @@ class UserRepositoryTests {
 			entityManager.flush();
 			entityManager.clear();
 			
-			var loaded = userRepository.findById(user.getId()).get();
+			var loaded = userRepository.findByUsername(user.getUsername());
 			assertEquals(1, loaded.getRoles().size());
 		}
 		

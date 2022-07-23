@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -35,7 +34,6 @@ import lombok.ToString;
 public class User implements UserDetails {
 	@Id
 	@GeneratedValue
-	@JsonIgnore
 	private Long id;
 	
 	@Column(unique = true, nullable = false)
@@ -47,9 +45,10 @@ public class User implements UserDetails {
 	@ToString.Exclude
 	private String password;
 	
-	@ElementCollection(fetch = FetchType.EAGER)
+	@ElementCollection
 	@JsonIgnore
 	@Singular
+	@ToString.Exclude
 	private Set<String> roles;
 
 	@Override

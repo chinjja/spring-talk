@@ -1,9 +1,12 @@
 package com.chinjja.talk.domain.chat.model;
 
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -18,20 +21,40 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"user1_id", "user2_id"}))
 public class DirectChat {
-	@Id
-	@GeneratedValue
-	private Long id;
+	@EmbeddedId
+	Id id;
 	
 	@OneToOne(optional = false)
-	private Chat chat;
+	Chat chat;
 	
-	@ManyToOne(optional = false)
-	private User user1;
+	@MapsId("user1_id")
+	@ManyToOne
+	User user1;
 	
-	@ManyToOne(optional = false)
-	private User user2;
+	@MapsId("user2_id")
+	@ManyToOne
+	User user2;
+	
+
+	@Builder(toBuilder = true)
+	public DirectChat(User user1, User user2, Chat chat) {
+		this.id = new Id(user1.getId(), user2.getId());
+		this.user1 = user1;
+		this.user2 = user2;
+		this.chat = chat;
+	}
+	
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Id implements Serializable {
+		@Column(name = "user1_id")
+		long user1Id;
+		
+		@Column(name ="user2_id")
+		long user2Id;
+	}
 }

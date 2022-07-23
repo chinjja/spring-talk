@@ -1,5 +1,6 @@
 package com.chinjja.talk.domain.auth.controller;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,10 +10,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.chinjja.talk.domain.auth.dto.LoginRequest;
-import com.chinjja.talk.domain.auth.dto.LoginResponse;
 import com.chinjja.talk.domain.auth.dto.RefreshTokenRequest;
 import com.chinjja.talk.domain.auth.dto.RegisterRequest;
-import com.chinjja.talk.domain.auth.model.Token;
+import com.chinjja.talk.domain.auth.dto.TokenDto;
 import com.chinjja.talk.domain.auth.services.AuthService;
 import com.chinjja.talk.domain.user.model.User;
 
@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthController {
 	private final AuthService authService;
+	private final ModelMapper modelMapper;
 	
 	@PostMapping("/register")
 	@ResponseStatus(HttpStatus.CREATED)
@@ -35,9 +36,10 @@ public class AuthController {
 	}
 	
 	@PostMapping("/login")
-	public LoginResponse login(@RequestBody LoginRequest dto) {
+	public TokenDto login(@RequestBody LoginRequest dto) {
 		log.info("login. {}", dto);
-		return authService.login(dto);
+		var token = authService.login(dto);
+		return modelMapper.map(token, TokenDto.class);
 	}
 	
 	@PostMapping("/logout")
@@ -47,8 +49,9 @@ public class AuthController {
 	}
 	
 	@PostMapping("/refresh")
-	public Token refresh(@RequestBody RefreshTokenRequest dto) {
+	public TokenDto refresh(@RequestBody RefreshTokenRequest dto) {
 		log.info("refresh token. {}", dto);
-		return authService.refresh(dto);
+		var token = authService.refresh(dto);
+		return modelMapper.map(token, TokenDto.class);
 	}
 }

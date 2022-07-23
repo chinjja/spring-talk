@@ -7,7 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 import com.chinjja.talk.domain.user.model.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,10 +21,8 @@ import lombok.NoArgsConstructor;
 public class Token {
 	@Id
 	@GeneratedValue
-	@JsonIgnore
 	private Long id;
 
-	@JsonIgnore
 	@OneToOne(optional = false)
 	private User user;
 	

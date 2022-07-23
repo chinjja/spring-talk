@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,9 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.chinjja.talk.domain.auth.controller.AuthController;
 import com.chinjja.talk.domain.auth.dto.LoginRequest;
-import com.chinjja.talk.domain.auth.dto.LoginResponse;
 import com.chinjja.talk.domain.auth.dto.RefreshTokenRequest;
 import com.chinjja.talk.domain.auth.dto.RegisterRequest;
+import com.chinjja.talk.domain.auth.dto.TokenDto;
 import com.chinjja.talk.domain.auth.model.Token;
 import com.chinjja.talk.domain.auth.services.AuthService;
 import com.chinjja.talk.domain.user.model.User;
@@ -35,6 +36,9 @@ public class AuthControllerTests {
 	
 	@Autowired
 	ObjectMapper objectMapper;
+	
+	@Autowired
+	ModelMapper modelMapper;
 
 	@MockBean
 	AuthService authService;
@@ -83,14 +87,11 @@ public class AuthControllerTests {
 				.username("user")
 				.password("1234")
 				.build();
-		var res = LoginResponse.builder()
-				.token(token)
-				.emailVerified(true)
-				.build();
+		var res = modelMapper.map(token, TokenDto.class);
 		var requestBody = objectMapper.writeValueAsString(dto);
 		var responseBody = objectMapper.writeValueAsString(res);
 		
-		when(authService.login(dto)).thenReturn(res);
+		when(authService.login(dto)).thenReturn(token);
 		
 		mockMvc.perform(post("/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -111,23 +112,21 @@ public class AuthControllerTests {
 	
 	@Test
 	void refresh() throws Exception {
-		var dto = RefreshTokenRequest.builder()
+		var req = RefreshTokenRequest.builder()
 				.accessToken(token.getAccessToken())
 				.refreshToken(token.getRefreshToken())
 				.build();
 		var newToken = token.toBuilder().accessToken("newAccess").build();
-		var requestBody = objectMapper.writeValueAsString(token);
-		var responseBody = objectMapper.writeValueAsString(newToken);
+		var res = modelMapper.map(newToken, TokenDto.class);
 		
-		when(authService.refresh(dto))
-		.thenReturn(newToken);
+		when(authService.refresh(req)).thenReturn(newToken);
 		
 		mockMvc.perform(post("/auth/refresh")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(requestBody))
+				.content(objectMapper.writeValueAsString(token)))
 		.andExpect(status().isOk())
-		.andExpect(content().string(responseBody));
+		.andExpect(content().string(objectMapper.writeValueAsString(res)));
 		
-		verify(authService).refresh(dto);
+		verify(authService).refresh(req);
 	}
 }

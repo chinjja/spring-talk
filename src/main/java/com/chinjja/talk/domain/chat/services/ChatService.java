@@ -1,10 +1,10 @@
 package com.chinjja.talk.domain.chat.services;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,8 @@ import com.chinjja.talk.domain.chat.dao.ChatMessageRepository;
 import com.chinjja.talk.domain.chat.dao.ChatRepository;
 import com.chinjja.talk.domain.chat.dao.ChatUserRepository;
 import com.chinjja.talk.domain.chat.dao.DirectChatRepository;
-import com.chinjja.talk.domain.chat.dto.ChatInfo;
+import com.chinjja.talk.domain.chat.dto.ChatInfoDto;
+import com.chinjja.talk.domain.chat.dto.ChatMessageDto;
 import com.chinjja.talk.domain.chat.dto.InviteUserRequest;
 import com.chinjja.talk.domain.chat.dto.NewDirectChatRequest;
 import com.chinjja.talk.domain.chat.dto.NewGroupChatRequest;
@@ -47,6 +48,7 @@ public class ChatService {
 	private final ChatMessageRepository chatMessageRepository;
 	private final UserService userService;
 	private final ApplicationEventPublisher applicationEventPublisher;
+	private final ModelMapper modelMapper;
 	
 	@Transactional
 	public Chat createOpenChat(User owner, NewOpenChatRequest dto) {
@@ -122,7 +124,9 @@ public class ChatService {
 	}
 	
 	public List<Chat> getJoinedChatList(User user) {
-		return chatRepository.findJoinedChats(user);
+		return chatUserRepository.findByUser(user).stream()
+				.map(x -> x.getChat())
+				.collect(Collectors.toList());
 	}
 	
 	public List<Chat> getPublicChats() {
@@ -130,11 +134,7 @@ public class ChatService {
 	}
 	
 	public Chat getChat(Long id) {
-		return chatRepository.findById(id).orElse(null);
-	}
-	
-	public ChatUser getChatUser(Long id) {
-		return chatUserRepository.findById(id).orElse(null);
+		return chatRepository.findById(id);
 	}
 	
 	public ChatUser getChatUser(Chat chat, User user) {
@@ -150,24 +150,15 @@ public class ChatService {
 		checkJoin(chat, user);
 		return chatUserRepository.countByChat(chat);
 	}
-
-	public List<ChatUser> getUserList(Chat chat, User user, List<Long> idList) {
-		checkJoin(chat, user);
-		return chatUserRepository.findByIdIn(idList).stream()
-				.filter(x -> x.getChat().getId().equals(chat.getId()))
-				.collect(Collectors.toList());
-	}
 	
 	@Transactional
-	public List<Long> invite(Chat chat, InviteUserRequest dto) {
-		var chatUsers = new ArrayList<Long>();
+	public void invite(Chat chat, InviteUserRequest dto) {
 		var users = dto.getUsernameList().stream()
 				.map(x -> userService.getByUsername(x))
 				.collect(Collectors.toList());
 		for(var user : users) {
-			chatUsers.add(join(chat, user).getId());
+			join(chat, user);
 		}
-		return chatUsers;
 	}
 	
 	@Transactional
@@ -182,10 +173,7 @@ public class ChatService {
 	
 	@Transactional
 	private ChatUser join(Chat chat, User user) {
-		var chatUser = chatUserRepository.save(ChatUser.builder()
-				.chat(chat)
-				.user(user)
-				.build());
+		var chatUser = chatUserRepository.save(new ChatUser(chat, user));
 
 		applicationEventPublisher.publishEvent(new ChatAdded(user, chat));
 		applicationEventPublisher.publishEvent(new ChatUserAdded(chatUser));
@@ -274,14 +262,15 @@ public class ChatService {
 		return chatUser;
 	}
 	
-	public ChatInfo getChatInfo(Chat chat, User user) {
+	public ChatInfoDto getChatInfo(Chat chat, User user) {
 		var unreadCount = getUnreadMessageCount(chat, user, 100);
 		var userCount = getUserCount(chat, user);
 		var message = getLatestMessage(chat, user);
-		return ChatInfo.builder()
+		var messageDto = message == null ? null : modelMapper.map(message, ChatMessageDto.class);
+		return ChatInfoDto.builder()
 				.unreadCount(unreadCount)
 				.userCount(userCount)
-				.latestMessage(message)
+				.latestMessage(messageDto)
 				.build();
 	}
 	

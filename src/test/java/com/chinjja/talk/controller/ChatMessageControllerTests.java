@@ -8,10 +8,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.chinjja.talk.converter.StringToChatConverter;
 import com.chinjja.talk.domain.chat.controller.ChatMessageController;
+import com.chinjja.talk.domain.chat.dto.ChatMessageDto;
 import com.chinjja.talk.domain.chat.dto.NewMessageRequest;
 import com.chinjja.talk.domain.chat.model.Chat;
 import com.chinjja.talk.domain.chat.model.ChatMessage;
@@ -40,6 +43,9 @@ public class ChatMessageControllerTests {
 	
 	@Autowired
 	ObjectMapper objectMapper;
+	
+	@Autowired
+	ModelMapper modelMapper;
 	
 	@MockBean
 	ChatService chatService;
@@ -103,6 +109,9 @@ public class ChatMessageControllerTests {
 			var res = Arrays.asList(ChatMessage.builder()
 					.message("hello")
 					.build());
+			var dto = res.stream()
+					.map(x -> modelMapper.map(x, ChatMessageDto.class))
+					.collect(Collectors.toList());
 			var from = Instant.now();
 			when(chatService.getMessageList(chat, user, from, 3)).thenReturn(res);
 			
@@ -111,7 +120,7 @@ public class ChatMessageControllerTests {
 					.param("limit", "3")
 					.param("from", from.toString()))
 			.andExpect(status().isOk())
-			.andExpect(content().json(objectMapper.writeValueAsString(res)));
+			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		}
 		
 		@Test
@@ -119,11 +128,13 @@ public class ChatMessageControllerTests {
 			var message = ChatMessage.builder()
 					.id(2L)
 					.build();
+			
+			var res = modelMapper.map(message, ChatMessageDto.class);
 			when(chatService.getMessage(user, 2)).thenReturn(message);
 			
 			mockMvc.perform(get("/messages/2"))
 			.andExpect(status().isOk())
-			.andExpect(content().json(objectMapper.writeValueAsString(message)));
+			.andExpect(content().json(objectMapper.writeValueAsString(res)));
 		}
 		
 		@Test
@@ -131,13 +142,16 @@ public class ChatMessageControllerTests {
 			var res = Arrays.asList(ChatMessage.builder()
 					.message("hello")
 					.build());
+			var dto = res.stream()
+					.map(x -> modelMapper.map(x, ChatMessageDto.class))
+					.collect(Collectors.toList());
 			when(chatService.getMessageList(chat, user, 3)).thenReturn(res);
 			
 			mockMvc.perform(get("/messages")
 					.param("chatId", "1")
 					.param("limit", "3"))
 			.andExpect(status().isOk())
-			.andExpect(content().json(objectMapper.writeValueAsString(res)));
+			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		}
 	}
 }

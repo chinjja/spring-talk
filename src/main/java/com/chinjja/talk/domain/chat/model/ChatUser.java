@@ -1,47 +1,60 @@
 package com.chinjja.talk.domain.chat.model;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 import com.chinjja.talk.domain.user.model.User;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder(toBuilder = true)
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"chat_id", "user_id"}))
 public class ChatUser {
-	@Id
-	@GeneratedValue
-	private Long id;
+	@EmbeddedId
+	private Id id;
 	
-	@ManyToOne(optional = false)
+	@MapsId("chat_id")
+	@ManyToOne
 	private Chat chat;
 
-	@ManyToOne(optional = false)
+	@MapsId("user_id")
+	@ManyToOne
 	private User user;
 
 	@Column(nullable = false)
 	private Instant readAt;
+	
+	public ChatUser(Chat chat, User user) {
+		this.id = new Id(chat.getId(), user.getId());
+		this.chat = chat;
+		this.user = user;
+	}
 
 	@PrePersist
 	void readAt() {
 		if(readAt != null) return;
 		readAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
+	}
+	
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Id implements Serializable {
+		@Column(name = "chat_id")
+		private long chatId;
+		
+		@Column(name ="user_id")
+		private long userId;
 	}
 }

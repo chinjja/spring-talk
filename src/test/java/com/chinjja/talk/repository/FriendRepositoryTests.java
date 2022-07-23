@@ -3,8 +3,9 @@ package com.chinjja.talk.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -53,10 +54,7 @@ public class FriendRepositoryTests {
 	
 	@Test
 	void save() {
-		var saved = friendRepository.save(Friend.builder()
-				.user(user)
-				.other(other1)
-				.build());
+		var saved = friendRepository.save(new Friend(user, other1));
 		
 		assertNotNull(saved.getId());
 		assertEquals(user, saved.getUser());
@@ -67,10 +65,9 @@ public class FriendRepositoryTests {
 	@Test
 	void uniqueTest() {
 		save();
+		save();
 		entityManager.clear();
-		assertThrows(Exception.class, () -> {
-			save();
-		});
+		assertEquals(1, friendRepository.countByUser(user));
 	}
 	
 	@Nested
@@ -81,24 +78,17 @@ public class FriendRepositoryTests {
 		
 		@BeforeEach
 		void setUp() {
-			userOther1 = friendRepository.save(Friend.builder()
-					.user(user)
-					.other(other1)
-					.build());
-			userOther2 = friendRepository.save(Friend.builder()
-					.user(user)
-					.other(other2)
-					.build());
-			other1Other2 = friendRepository.save(Friend.builder()
-					.user(other1)
-					.other(other2)
-					.build());
+			userOther1 = friendRepository.save(new Friend(user, other1));
+			userOther2 = friendRepository.save(new Friend(user, other2));
+			other1Other2 = friendRepository.save(new Friend(other1, other2));
+			entityManager.flush();
 		}
 		
 		@Test
 		void findByUserAndOther() {
 			var friend = friendRepository.findByUserAndOther(user, other1);
-			assertEquals(userOther1, friend);
+			assertEquals(user.getUsername(), friend.getUser().getUsername());
+			assertEquals(other1.getUsername(), friend.getOther().getUsername());
 		}
 		
 		@Test
@@ -108,9 +98,11 @@ public class FriendRepositoryTests {
 		
 		@Test
 		void findByUser() {
-			assertThat(friendRepository.findByUser(user)).containsExactlyInAnyOrder(userOther1, userOther2);
-			assertThat(friendRepository.findByUser(other1)).containsExactly(other1Other2);
-			assertThat(friendRepository.findByUser(other2)).isEmpty();;
+			var users = friendRepository.findByUser(user).stream()
+					.map(x -> x.getOther().getUsername())
+					.collect(Collectors.toList());
+			assertEquals(2, users.size());
+			assertThat(users).containsExactlyInAnyOrder(other1.getUsername(), other2.getUsername());
 		}
 		
 		@Test

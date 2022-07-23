@@ -2,6 +2,7 @@ package com.chinjja.talk.domain.chat.controller;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.chinjja.talk.domain.chat.converter.ChatMessageToChatMessageDtoConverter;
+import com.chinjja.talk.domain.chat.dto.ChatMessageDto;
 import com.chinjja.talk.domain.chat.dto.NewMessageRequest;
 import com.chinjja.talk.domain.chat.model.Chat;
 import com.chinjja.talk.domain.chat.model.ChatMessage;
@@ -29,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatMessageController {
 	private final ChatService chatService;
+	private final ChatMessageToChatMessageDtoConverter toChatMessageDtoConverter;
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
@@ -40,21 +44,27 @@ public class ChatMessageController {
 	}
 	
 	@GetMapping
-	public List<ChatMessage> getMessages(
+	public List<ChatMessageDto> getMessages(
 			@RequestParam("chatId") Chat chat,
 			@RequestParam(name = "from", required = false) @DateTimeFormat(iso = ISO.DATE_TIME) Instant from,
 			@RequestParam("limit") int limit,
 			@AuthenticationPrincipal User user) {
+		List<ChatMessage> list = null;
 		if(from == null) {
-			return chatService.getMessageList(chat, user, limit);
+			list = chatService.getMessageList(chat, user, limit);
+		} else {
+			list = chatService.getMessageList(chat, user, from, limit);
 		}
-		return chatService.getMessageList(chat, user, from, limit);
+		return list.stream()
+				.map(toChatMessageDtoConverter::convert)
+				.collect(Collectors.toList());
 	}
 	
 	@GetMapping("/{id}")
-	public ChatMessage getMessage(
+	public ChatMessageDto getMessage(
 			@PathVariable("id") long id,
 			@AuthenticationPrincipal User user) {
-		return chatService.getMessage(user, id);
+		var msg = chatService.getMessage(user, id);
+		return toChatMessageDtoConverter.convert(msg);
 	}
 }

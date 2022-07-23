@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.chinjja.talk.domain.auth.common.JwtTokenProvider;
 import com.chinjja.talk.domain.auth.dao.TokenRepository;
 import com.chinjja.talk.domain.auth.dto.LoginRequest;
-import com.chinjja.talk.domain.auth.dto.LoginResponse;
 import com.chinjja.talk.domain.auth.dto.RefreshTokenRequest;
 import com.chinjja.talk.domain.auth.dto.RegisterRequest;
 import com.chinjja.talk.domain.auth.exception.RefreshTokenException;
@@ -57,7 +56,7 @@ public class AuthService {
 	}
 	
 	@Transactional
-	public LoginResponse login(LoginRequest dto) {
+	public Token login(LoginRequest dto) {
 		var username = dto.getUsername();
 		var password = dto.getPassword();
 		var auth = new UsernamePasswordAuthenticationToken(username, password);
@@ -73,12 +72,8 @@ public class AuthService {
 		}
 		token.setAccessToken(accessToken);
 		token.setRefreshToken(refreshToken);
-		token = tokenRepository.save(token);
 		log.info("login. {}, {}", dto, token);
-		return LoginResponse.builder()
-				.token(token)
-				.emailVerified(!user.getAuthorities().isEmpty())
-				.build();
+		return tokenRepository.save(token);
 	}
 	
 	@Transactional
