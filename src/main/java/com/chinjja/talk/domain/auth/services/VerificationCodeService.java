@@ -11,9 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.chinjja.talk.domain.auth.common.RandomProvider;
 import com.chinjja.talk.domain.auth.dao.VerificationCodeRepository;
 import com.chinjja.talk.domain.auth.model.VerificationCode;
+import com.chinjja.talk.domain.event.event.VerifyCodeSent;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
-import com.chinjja.talk.infra.mail.dto.TransactionalMailMessage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class VerificationCodeService {
 		vc.setIssuedAt(Instant.now());
 		vc.setCode(code);
 		verificationCodeRepository.save(vc);
-		applicationEventPublisher.publishEvent(new TransactionalMailMessage(auth, "Verification Code", code));
+		applicationEventPublisher.publishEvent(new VerifyCodeSent(auth, code));
 		log.info("send code. {}, {}", auth, code);
 	}
 	

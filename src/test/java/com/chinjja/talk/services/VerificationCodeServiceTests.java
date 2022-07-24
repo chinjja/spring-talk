@@ -21,9 +21,9 @@ import com.chinjja.talk.domain.auth.common.RandomProvider;
 import com.chinjja.talk.domain.auth.dao.VerificationCodeRepository;
 import com.chinjja.talk.domain.auth.model.VerificationCode;
 import com.chinjja.talk.domain.auth.services.VerificationCodeService;
+import com.chinjja.talk.domain.event.event.VerifyCodeSent;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
-import com.chinjja.talk.infra.mail.dto.TransactionalMailMessage;
 
 @ExtendWith(MockitoExtension.class)
 public class VerificationCodeServiceTests {
@@ -52,7 +52,7 @@ public class VerificationCodeServiceTests {
 		
 		verificationCodeService.sendCode(user);
 		
-		verify(applicationEventPublisher).publishEvent(new TransactionalMailMessage(user, "Verification Code", "123123"));
+		verify(applicationEventPublisher).publishEvent(new VerifyCodeSent(user, "123123"));
 		verify(randomProvider).nextInt();
 		verify(verificationCodeRepository).save(VerificationCode.builder()
 				.user(user)
@@ -75,7 +75,7 @@ public class VerificationCodeServiceTests {
 		
 		verificationCodeService.sendCode(user);
 		
-		verify(applicationEventPublisher).publishEvent(new TransactionalMailMessage(user, "Verification Code", "123123"));
+		verify(applicationEventPublisher).publishEvent(new VerifyCodeSent(user, "123123"));
 		verify(randomProvider).nextInt();
 		verify(verificationCodeRepository).save(VerificationCode.builder()
 				.user(user)

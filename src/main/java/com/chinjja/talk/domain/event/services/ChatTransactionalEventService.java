@@ -1,5 +1,9 @@
 package com.chinjja.talk.domain.event.services;
 
+import java.util.HashMap;
+
+import javax.mail.MessagingException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -11,7 +15,9 @@ import com.chinjja.talk.domain.event.event.ChatUserDeleted;
 import com.chinjja.talk.domain.event.event.ChatUserUpdated;
 import com.chinjja.talk.domain.event.event.FriendAdded;
 import com.chinjja.talk.domain.event.event.FriendDeleted;
+import com.chinjja.talk.domain.event.event.VerifyCodeSent;
 import com.chinjja.talk.domain.messenger.services.MessengerService;
+import com.chinjja.talk.infra.mail.services.EmailService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ChatTransactionalEventService {
 	private final MessengerService messengerService;
+	private final EmailService emailService;
 
 	@TransactionalEventListener
 	public void onData(ChatAdded event) {
@@ -68,5 +75,14 @@ public class ChatTransactionalEventService {
 	public void onData(FriendDeleted event) {
 		log.info("friend deleted: {}", event.getUser());
 		messengerService.toUser(event.getUser(), "removed", event.getFriend());
+	}
+	
+	@TransactionalEventListener
+	public void onData(VerifyCodeSent event) throws MessagingException {
+		log.info("verification code snet. {}", event);
+		var values = new HashMap<String, String>();
+		values.put("subject", "Verification Code");
+		values.put("code", event.getCode());
+		emailService.sendHtml(event.getTo().getUsername(), "Verification Code", "verification-email/email", values);
 	}
 }
