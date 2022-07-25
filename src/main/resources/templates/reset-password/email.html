@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reset Password</title>
+</head>
+<body>
+	<a th:href="@{{host}/auth/reset/{uuid}(host = ${host}, uuid = ${uuid})}">Reset Password</a>
+</body>
+</html>

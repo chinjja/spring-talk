@@ -15,6 +15,7 @@ import com.chinjja.talk.domain.event.event.ChatUserDeleted;
 import com.chinjja.talk.domain.event.event.ChatUserUpdated;
 import com.chinjja.talk.domain.event.event.FriendAdded;
 import com.chinjja.talk.domain.event.event.FriendDeleted;
+import com.chinjja.talk.domain.event.event.ResetPasswordSent;
 import com.chinjja.talk.domain.event.event.VerifyCodeSent;
 import com.chinjja.talk.domain.messenger.services.MessengerService;
 import com.chinjja.talk.infra.mail.services.EmailService;
@@ -84,5 +85,15 @@ public class ChatTransactionalEventService {
 		values.put("subject", "Verification Code");
 		values.put("code", event.getCode());
 		emailService.sendHtml(event.getTo().getUsername(), "Verification Code", "verification-email/email", values);
+	}
+	
+	@TransactionalEventListener
+	public void onData(ResetPasswordSent event) throws MessagingException {
+		log.info("reset password sent. {}", event);
+		var values = new HashMap<String, String>();
+		values.put("subject", "Reset Password");
+		values.put("uuid", event.getUuid());
+		values.put("host", event.getHost());
+		emailService.sendHtml(event.getEmail(), "Reset Password", "reset-password/email", values);
 	}
 }
