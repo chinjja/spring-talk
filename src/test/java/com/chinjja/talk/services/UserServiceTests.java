@@ -2,7 +2,6 @@ package com.chinjja.talk.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,8 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.chinjja.talk.domain.storage.model.Storage;
+import com.chinjja.talk.domain.storage.services.StorageService;
 import com.chinjja.talk.domain.user.dao.FriendRepository;
 import com.chinjja.talk.domain.user.dao.UserRepository;
+import com.chinjja.talk.domain.user.dto.UpdateProfileRequest;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
 
@@ -27,6 +29,9 @@ class UserServiceTests {
 	
 	@Mock
 	FriendRepository friendRepository;
+	
+	@Mock
+	StorageService storageService;
 	
 	@Mock
 	ApplicationEventPublisher applicationEventPublisher;
@@ -66,5 +71,30 @@ class UserServiceTests {
 		assertThrows(UsernameNotFoundException.class, () -> {
 			userService.getByUsername("username");
 		});
+	}
+	
+	@Test
+	void updateProfile() {
+		var image = "image".getBytes();
+		var updatedUser = user.toBuilder()
+				.name("hello")
+				.state("not working")
+				.photoId(user.getUsername()+"/photo")
+				.build();
+		var storage = Storage.builder()
+				.id(user.getUsername()+"/photo")
+				.data(image)
+				.build();
+		
+		when(storageService.save(storage)).thenReturn(storage);
+		when(userRepository.save(updatedUser)).thenReturn(updatedUser);
+		
+		userService.updateProfile(user, UpdateProfileRequest.builder()
+				.name("hello")
+				.state("not working")
+				.photo(image)
+				.build());
+		
+		verify(userRepository).save(updatedUser);
 	}
 }

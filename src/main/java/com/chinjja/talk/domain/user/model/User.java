@@ -50,6 +50,10 @@ public class User implements UserDetails {
 	@Singular
 	@ToString.Exclude
 	private Set<String> roles;
+	
+	private String photoId;
+	private String name;
+	private String state;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
