@@ -85,6 +85,20 @@ public class AuthServiceTests {
 	}
 	
 	@Test
+	void whenUserIsExists_thenFail() {
+		when(userService.existsByUsername("user")).thenReturn(true);
+		
+		var e = assertThrows(IllegalArgumentException.class, () -> {
+			authService.register(RegisterRequest.builder()
+					.username("user")
+					.password("1234")
+					.build());
+		});
+		
+		assertEquals("already exists username", e.getMessage());
+	}
+	
+	@Test
 	void initAdmin() {
 		when(passwordEncoder.encode("1234")).thenReturn("encoded");
 		authService.initAdmin();

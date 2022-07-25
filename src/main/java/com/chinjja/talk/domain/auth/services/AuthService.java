@@ -34,6 +34,9 @@ public class AuthService {
 	@Transactional
 	public User register(RegisterRequest dto) {
 		var username = dto.getUsername();
+		if(userService.existsByUsername(username)) {
+			throw new IllegalArgumentException("already exists username");
+		}
 		var password = dto.getPassword();
 		var user = userService.save(User.builder()
 				.username(username)

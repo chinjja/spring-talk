@@ -46,21 +46,11 @@ class UserServiceTests {
 	
 	@Test
 	void whenUsernameIsNotExists_thenShouldSaveTheUser() {
-		when(userRepository.existsByUsername("username")).thenReturn(false);
 		when(userRepository.save(user)).thenReturn(user);
 		var savedUser = userService.save(user);
 		assertEquals(user, savedUser);
 		
 		verify(userRepository).save(user);
-	}
-	
-	@Test
-	void whenUsernameIsExists_thenShouldFail() {
-		when(userRepository.existsByUsername("username")).thenReturn(true);
-		assertThrows(Exception.class, () -> {
-			userService.save(user);
-		});
-		verify(userRepository, never()).save(user);
 	}
 	
 	@Test

@@ -21,9 +21,6 @@ public class UserService {
 	
 	@Transactional
 	public User save(User user) {
-		if(existsByUsername(user.getUsername())) {
-			throw new IllegalArgumentException("already exists username");
-		}
 		user = userRepository.save(user);
 		log.info("save. {}", user);
 		return user;
