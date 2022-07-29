@@ -19,28 +19,30 @@ public class Friend {
 	@EmbeddedId
 	private Id id;
 	
+	@MapsId("owner_id")
+	@ManyToOne
+	private User owner;
+	
 	@MapsId("user_id")
 	@ManyToOne
 	private User user;
 	
-	@MapsId("other_id")
-	@ManyToOne
-	private User other;
+	private String name;
 	
-	public Friend(User user, User other) {
-		this.id = new Id(user.getId(), other.getId());
+	public Friend(User owner, User user) {
+		this.id = new Id(owner.getId(), user.getId());
+		this.owner = owner;
 		this.user = user;
-		this.other = other;
 	}
 	
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Id implements Serializable {
+		@Column(name = "owner_id")
+		private long ownerId;
+		
 		@Column(name = "user_id")
 		private long userId;
-		
-		@Column(name = "other_id")
-		private long otherId;
 	}
 }

@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.chinjja.talk.domain.user.controller.FriendController;
 import com.chinjja.talk.domain.user.dto.AddFriendRequest;
-import com.chinjja.talk.domain.user.dto.UserDto;
+import com.chinjja.talk.domain.user.dto.FriendDto;
 import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.FriendService;
@@ -51,8 +51,10 @@ public class FriendControllerTests {
 	UserService userService;
 	
 	User user;
-	User other;
-	Friend friend;
+	User other1;
+	User other2;
+	Friend friend1;
+	Friend friend2;
 	
 	@BeforeEach
 	void setUp() {
@@ -62,26 +64,34 @@ public class FriendControllerTests {
 				.password("1234")
 				.build();
 		
-		other = User.builder()
+		other1 = User.builder()
 				.id(2L)
-				.username("other")
+				.username("other1")
 				.password("1234")
 				.build();
 		
-		friend = new Friend(user, other);
+		other2 = User.builder()
+				.id(2L)
+				.username("other2")
+				.password("1234")
+				.build();
+		
+		friend1 = new Friend(user, other1);
+		friend2 = new Friend(user, other2);
 		
 		doReturn(user).when(userService).getByUsername("user");
-		doReturn(other).when(userService).getByUsername("other");
+		doReturn(other1).when(userService).getByUsername("other1");
+		doReturn(other2).when(userService).getByUsername("other2");
 	}
 	@Test
 	@WithMockCustomUser
 	void getFriends() throws Exception {
-		var list = new ArrayList<User>();
-		list.add(user);
-		list.add(other);
+		var list = new ArrayList<Friend>();
+		list.add(friend1);
+		list.add(friend2);
 		
 		var dto = list.stream()
-				.map(x -> modelMapper.map(x, UserDto.class))
+				.map(x -> modelMapper.map(x, FriendDto.class))
 				.collect(Collectors.toList());
 		
 		doReturn(list).when(friendService).getFriends(user);
@@ -96,15 +106,15 @@ public class FriendControllerTests {
 	@Test
 	@WithMockCustomUser
 	void getFriend() throws Exception {
-		var responseBody = objectMapper.writeValueAsString(modelMapper.map(other, UserDto.class));
+		var dto = modelMapper.map(friend1, FriendDto.class);
 		
-		doReturn(other).when(friendService).getFriend(user, other);
+		doReturn(friend1).when(friendService).getFriend(user, other1);
 		
-		mockMvc.perform(get("/friends/other"))
+		mockMvc.perform(get("/friends/other1"))
 		.andExpect(status().isOk())
-		.andExpect(content().json(responseBody));
+		.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		
-		verify(friendService).getFriend(user, other);
+		verify(friendService).getFriend(user, other1);
 	}
 
 	@Test
@@ -113,17 +123,15 @@ public class FriendControllerTests {
 		var requestDto = AddFriendRequest.builder()
 				.username("other")
 				.build();
-		var requestBody = objectMapper.writeValueAsString(requestDto);
-		var responseBody = objectMapper.writeValueAsString(modelMapper.map(other, UserDto.class));
+		var responseDto = modelMapper.map(friend1, FriendDto.class);
 		
-		
-		doReturn(friend).when(friendService).addFriend(user, requestDto);
+		doReturn(friend1).when(friendService).addFriend(user, requestDto);
 		
 		mockMvc.perform(post("/friends")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(requestBody))
+				.content(objectMapper.writeValueAsString(requestDto)))
 		.andExpect(status().isCreated())
-		.andExpect(content().json(responseBody));
+		.andExpect(content().json(objectMapper.writeValueAsString(responseDto)));
 		
 		verify(friendService).addFriend(user, requestDto);
 	}
@@ -131,11 +139,11 @@ public class FriendControllerTests {
 	@Test
 	@WithMockCustomUser
 	void removeFriend() throws Exception {
-		doNothing().when(friendService).removeFriend(user, other);
+		doNothing().when(friendService).removeFriend(user, other1);
 		
-		mockMvc.perform(delete("/friends/other"))
+		mockMvc.perform(delete("/friends/other1"))
 		.andExpect(status().isOk());
 		
-		verify(friendService).removeFriend(user, other);
+		verify(friendService).removeFriend(user, other1);
 	}
 }

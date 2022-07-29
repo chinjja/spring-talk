@@ -72,7 +72,7 @@ public class FriendServiceTests {
 				.build());
 		
 		verify(friendRepository).save(friend);
-		verify(applicationEventPublisher).publishEvent(new FriendAdded(user, other));
+		verify(applicationEventPublisher).publishEvent(new FriendAdded(user, friend));
 	}
 	
 	@Test
@@ -86,7 +86,7 @@ public class FriendServiceTests {
 	
 	@Test
 	void whenUserAndOtherIsAlreadyFriend_thenShouldFail() {
-		when(friendRepository.existsByUserAndOther(any(), any())).thenReturn(true);
+		when(friendRepository.existsByOwnerAndUser(any(), any())).thenReturn(true);
 		assertThrows(IllegalArgumentException.class, () -> {
 			friendService.addFriend(user, AddFriendRequest.builder()
 					.username("other")
@@ -100,7 +100,7 @@ public class FriendServiceTests {
 	
 	@Test
 	void removeFriend() {
-		when(friendRepository.findByUserAndOther(any(), any())).thenReturn(friend);
+		when(friendRepository.findByOwnerAndUser(any(), any())).thenReturn(friend);
 		friendService.removeFriend(user, other);
 		verify(friendRepository).delete(friend);
 		verify(applicationEventPublisher).publishEvent(new FriendDeleted(user, other));

@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 public class FriendDto {
 	UserDto user;
-	UserDto other;
+	String name;
 }

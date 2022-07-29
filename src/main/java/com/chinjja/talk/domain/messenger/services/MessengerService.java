@@ -13,7 +13,9 @@ import com.chinjja.talk.domain.chat.model.Chat;
 import com.chinjja.talk.domain.chat.model.ChatMessage;
 import com.chinjja.talk.domain.chat.model.ChatUser;
 import com.chinjja.talk.domain.messenger.dto.ChatMessengerDto;
+import com.chinjja.talk.domain.user.converter.FriendToFriendDtoConverter;
 import com.chinjja.talk.domain.user.converter.UserToUserDtoConverter;
+import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class MessengerService {
 	private final ChatUserToChatUserDtoConverter toChatUserDtoConverter;
 	private final ChatMessageToChatMessageDtoConverter toChatMessageDtoConverter;
 	private final UserToUserDtoConverter toUserDtoConverter;
+	private final FriendToFriendDtoConverter toFriendDtoConverter;
 	
 	public void toChat(String command, ChatUser payload) {
 		toChat(payload.getChat(), command, "ChatUser", toChatUserDtoConverter.convert(payload));
@@ -64,7 +67,11 @@ public class MessengerService {
 	}
 	
 	public void toUser(User user, String command, User payload) {
-		toUser(user, command, "Friend", toUserDtoConverter.convert(payload));
+		toUser(user, command, "User", toUserDtoConverter.convert(payload));
+	}
+	
+	public void toUser(User user, String command, Friend payload) {
+		toUser(user, command, "Friend", toFriendDtoConverter.convert(payload));
 	}
 	
 	private void toUser(User user, String command, String objectType, Object payload) {

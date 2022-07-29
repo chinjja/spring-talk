@@ -1,7 +1,6 @@
 package com.chinjja.talk.domain.user.services;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -27,46 +26,42 @@ public class FriendService {
 	private final UserService userService;
 	
 	@Transactional
-	public Friend addFriend(User user, AddFriendRequest request) {
+	public Friend addFriend(User owner, AddFriendRequest request) {
 		var username = request.getUsername();
-		if(user.getUsername().equals(username)) {
+		if(owner.getUsername().equals(username)) {
 			throw new IllegalArgumentException("cannat self friend");
 		}
-		var other = userService.getByUsername(username);
-		if(isFriend(user, other)) {
+		var user = userService.getByUsername(username);
+		if(isFriend(owner, user)) {
 			throw new IllegalArgumentException("already friend");
 		}
-		applicationEventPublisher.publishEvent(new FriendAdded(user, other));
 		
-		var friend = friendRepository.save(new Friend(user, other));
+		var friend = friendRepository.save(new Friend(owner, user));
+		applicationEventPublisher.publishEvent(new FriendAdded(owner, friend));
 		log.info("add friend. {}", friend);
 		return friend;
 	}
 
 	@Transactional
-	public void removeFriend(User user, User other) {
-		var friend = friendRepository.findByUserAndOther(user, other);
+	public void removeFriend(User owner, User user) {
+		var friend = getFriend(owner, user);
 		if(friend == null) {
 			throw new IllegalArgumentException("not friend");
 		}
 		friendRepository.delete(friend);
-		applicationEventPublisher.publishEvent(new FriendDeleted(user, friend.getOther()));
-		log.info("remove friend. {}", friend);
+		applicationEventPublisher.publishEvent(new FriendDeleted(owner, user));
+		log.info("remove friend. {}", user);
 	}
 	
-	public boolean isFriend(User user, User other) {
-		return friendRepository.existsByUserAndOther(user, other);
+	public boolean isFriend(User owner, User user) {
+		return friendRepository.existsByOwnerAndUser(owner, user);
 	}
 	
-	public List<User> getFriends(User user) {
-		var data = friendRepository.findByUser(user);
-		return data.stream().map(x -> x.getOther()).collect(Collectors.toList());
+	public List<Friend> getFriends(User owner) {
+		return friendRepository.findByOwner(owner);
 	}
 	
-	public User getFriend(User user, User other) {
-		if(!isFriend(user, other)) {
-			throw new IllegalArgumentException("no friend");
-		}
-		return other;
+	public Friend getFriend(User owner, User user) {
+		return friendRepository.findByOwnerAndUser(owner, user);
 	}
 }

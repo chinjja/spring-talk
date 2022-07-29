@@ -54,11 +54,14 @@ public class FriendRepositoryTests {
 	
 	@Test
 	void save() {
-		var saved = friendRepository.save(new Friend(user, other1));
+		var friend = new Friend(user, other1);
+		friend.setName("my friend");
+		var saved = friendRepository.save(friend);
 		
 		assertNotNull(saved.getId());
-		assertEquals(user, saved.getUser());
-		assertEquals(other1, saved.getOther());
+		assertEquals(user, saved.getOwner());
+		assertEquals(other1, saved.getUser());
+		assertEquals("my friend", saved.getName());
 		entityManager.flush();
 	}
 	
@@ -67,7 +70,7 @@ public class FriendRepositoryTests {
 		save();
 		save();
 		entityManager.clear();
-		assertEquals(1, friendRepository.countByUser(user));
+		assertEquals(1, friendRepository.countByOwner(user));
 	}
 	
 	@Nested
@@ -86,20 +89,20 @@ public class FriendRepositoryTests {
 		
 		@Test
 		void findByUserAndOther() {
-			var friend = friendRepository.findByUserAndOther(user, other1);
-			assertEquals(user.getUsername(), friend.getUser().getUsername());
-			assertEquals(other1.getUsername(), friend.getOther().getUsername());
+			var friend = friendRepository.findByOwnerAndUser(user, other1);
+			assertEquals(user.getUsername(), friend.getOwner().getUsername());
+			assertEquals(other1.getUsername(), friend.getUser().getUsername());
 		}
 		
 		@Test
 		void existsByUserAndOther() {
-			assertTrue(friendRepository.existsByUserAndOther(user, other1));
+			assertTrue(friendRepository.existsByOwnerAndUser(user, other1));
 		}
 		
 		@Test
 		void findByUser() {
-			var users = friendRepository.findByUser(user).stream()
-					.map(x -> x.getOther().getUsername())
+			var users = friendRepository.findByOwner(user).stream()
+					.map(x -> x.getUser().getUsername())
 					.collect(Collectors.toList());
 			assertEquals(2, users.size());
 			assertThat(users).containsExactlyInAnyOrder(other1.getUsername(), other2.getUsername());
@@ -107,9 +110,9 @@ public class FriendRepositoryTests {
 		
 		@Test
 		void countByUser() {
-			assertEquals(2, friendRepository.countByUser(user));
-			assertEquals(1, friendRepository.countByUser(other1));
-			assertEquals(0, friendRepository.countByUser(other2));
+			assertEquals(2, friendRepository.countByOwner(user));
+			assertEquals(1, friendRepository.countByOwner(other1));
+			assertEquals(0, friendRepository.countByOwner(other2));
 		}
 	}
 }

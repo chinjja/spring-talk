@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chinjja.talk.domain.user.converter.UserToUserDtoConverter;
+import com.chinjja.talk.domain.user.converter.FriendToFriendDtoConverter;
 import com.chinjja.talk.domain.user.dto.AddFriendRequest;
-import com.chinjja.talk.domain.user.dto.UserDto;
+import com.chinjja.talk.domain.user.dto.FriendDto;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.FriendService;
 
@@ -29,23 +29,23 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class FriendController {
 	private final FriendService friendService;
-	private final UserToUserDtoConverter userToUserDtoConverter;
+	private final FriendToFriendDtoConverter friendToFriendDtoConverter;
 	
 	@GetMapping
-	public List<UserDto> getFriends(@AuthenticationPrincipal User user) {
+	public List<FriendDto> getFriends(@AuthenticationPrincipal User user) {
 		return friendService.getFriends(user).stream()
-				.map(userToUserDtoConverter::convert)
+				.map(friendToFriendDtoConverter::convert)
 				.collect(Collectors.toList());
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public UserDto addFriend(
+	public FriendDto addFriend(
 			@AuthenticationPrincipal User user,
 			@RequestBody AddFriendRequest dto) {
 		log.info("add friend. {}, {}", user, dto);
 		var friend = friendService.addFriend(user, dto);
-		return userToUserDtoConverter.convert(friend.getOther());
+		return friendToFriendDtoConverter.convert(friend);
 	}
 	
 	@DeleteMapping("/{username}")
@@ -57,10 +57,10 @@ public class FriendController {
 	}
 	
 	@GetMapping("/{username}")
-	public UserDto getFriend(
+	public FriendDto getFriend(
 			@AuthenticationPrincipal User user,
 			@PathVariable("username") User other) {
 		var friend = friendService.getFriend(user, other);
-		return userToUserDtoConverter.convert(friend);
+		return friendToFriendDtoConverter.convert(friend);
 	}
 }
