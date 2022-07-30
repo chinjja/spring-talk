@@ -15,7 +15,9 @@ import com.chinjja.talk.domain.user.model.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -26,10 +28,14 @@ public class ChatUser {
 	
 	@MapsId("chat_id")
 	@ManyToOne
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Chat chat;
 
 	@MapsId("user_id")
 	@ManyToOne
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private User user;
 
 	@Column(nullable = false)

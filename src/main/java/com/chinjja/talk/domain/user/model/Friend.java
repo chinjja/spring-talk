@@ -10,7 +10,9 @@ import javax.persistence.MapsId;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -21,10 +23,14 @@ public class Friend {
 	
 	@MapsId("owner_id")
 	@ManyToOne
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private User owner;
 	
 	@MapsId("user_id")
 	@ManyToOne
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private User user;
 	
 	private String name;

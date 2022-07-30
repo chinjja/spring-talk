@@ -16,7 +16,9 @@ import com.chinjja.talk.domain.user.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -28,14 +30,20 @@ public class DirectChat {
 	Id id;
 	
 	@OneToOne(optional = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	Chat chat;
 	
 	@MapsId("user1_id")
 	@ManyToOne
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	User user1;
 	
 	@MapsId("user2_id")
 	@ManyToOne
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	User user2;
 	
 

@@ -17,7 +17,9 @@ import com.chinjja.talk.domain.user.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -31,9 +33,13 @@ public class ChatMessage {
 	private Long id;
 	
 	@ManyToOne(optional = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private Chat chat;
 	
 	@ManyToOne(optional = false)
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
 	private User sender;
 
 	@Column(nullable = false)

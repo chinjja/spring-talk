@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
 import lombok.ToString;
@@ -49,6 +50,7 @@ public class User implements UserDetails {
 	@JsonIgnore
 	@Singular
 	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
 	private Set<String> roles;
 	
 	private String photoId;
