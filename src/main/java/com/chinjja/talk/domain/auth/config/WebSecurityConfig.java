@@ -40,6 +40,8 @@ public class WebSecurityConfig {
 		.formLogin().disable()
 		.csrf().disable()
 		.authorizeHttpRequests()
+		.antMatchers("/").permitAll()
+		.antMatchers("/app/**").permitAll()
 		.antMatchers("/auth/**").permitAll()
 		.antMatchers("/websocket/**").permitAll()
 		.antMatchers("/verification/**").authenticated()
