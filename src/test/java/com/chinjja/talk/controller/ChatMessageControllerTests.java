@@ -96,7 +96,7 @@ public class ChatMessageControllerTests {
 			
 			when(chatService.sendMessage(chat, user, dto)).thenReturn(message);
 			
-			mockMvc.perform(post("/messages")
+			mockMvc.perform(post("/api/messages")
 					.param("chatId", "1")
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(dto)))
@@ -115,7 +115,7 @@ public class ChatMessageControllerTests {
 			var from = Instant.now();
 			when(chatService.getMessageList(chat, user, from, 3)).thenReturn(res);
 			
-			mockMvc.perform(get("/messages")
+			mockMvc.perform(get("/api/messages")
 					.param("chatId", "1")
 					.param("limit", "3")
 					.param("from", from.toString()))
@@ -132,7 +132,7 @@ public class ChatMessageControllerTests {
 			var res = modelMapper.map(message, ChatMessageDto.class);
 			when(chatService.getMessage(user, 2)).thenReturn(message);
 			
-			mockMvc.perform(get("/messages/2"))
+			mockMvc.perform(get("/api/messages/2"))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(res)));
 		}
@@ -147,7 +147,7 @@ public class ChatMessageControllerTests {
 					.collect(Collectors.toList());
 			when(chatService.getMessageList(chat, user, 3)).thenReturn(res);
 			
-			mockMvc.perform(get("/messages")
+			mockMvc.perform(get("/api/messages")
 					.param("chatId", "1")
 					.param("limit", "3"))
 			.andExpect(status().isOk())

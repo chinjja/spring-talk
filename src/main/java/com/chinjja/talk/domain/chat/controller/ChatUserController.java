@@ -21,7 +21,7 @@ import com.chinjja.talk.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/chat-users")
+@RequestMapping("/api/chat-users")
 @RequiredArgsConstructor
 public class ChatUserController {
 	private final ChatService chatService;

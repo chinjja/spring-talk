@@ -89,7 +89,7 @@ public class ChatUserControllerTests {
 					.usernameList(Arrays.asList("a", "b"))
 					.build();
 			
-			mockMvc.perform(post("/chat-users/invite")
+			mockMvc.perform(post("/api/chat-users/invite")
 					.param("chatId", "1")
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(dto)))
@@ -107,7 +107,7 @@ public class ChatUserControllerTests {
 			
 			when(chatService.getUserList(chat, user)).thenReturn(res);
 			
-			mockMvc.perform(get("/chat-users")
+			mockMvc.perform(get("/api/chat-users")
 					.param("chatId", "1"))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
@@ -118,7 +118,7 @@ public class ChatUserControllerTests {
 			var res = new ChatUser(chat, user);
 			
 			when(chatService.joinToChat(chat, user)).thenReturn(res);
-			mockMvc.perform(post("/chat-users/join")
+			mockMvc.perform(post("/api/chat-users/join")
 					.param("chatId", "1"))
 			.andExpect(status().isOk());
 			
@@ -127,7 +127,7 @@ public class ChatUserControllerTests {
 		
 		@Test
 		void leave() throws Exception {
-			mockMvc.perform(post("/chat-users/leave")
+			mockMvc.perform(post("/api/chat-users/leave")
 					.param("chatId", "1"))
 			.andExpect(status().isOk())
 			.andExpect(content().string(""));

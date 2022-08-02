@@ -73,7 +73,7 @@ public class StorageControllerTests {
 		
 		when(storageService.save(storage)).thenReturn(storage);
 		
-		mockMvc.perform(post("/storage")
+		mockMvc.perform(post("/api/storage")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(req)))
 		.andExpect(status().isCreated())
@@ -91,7 +91,7 @@ public class StorageControllerTests {
 		
 		when(storageService.getById(id)).thenReturn(storage);
 		
-		mockMvc.perform(get("/storage/"+id))
+		mockMvc.perform(get("/api/storage/"+id))
 		.andExpect(status().isOk())
 		.andExpect(content().json(objectMapper.writeValueAsString(res)));
 		
@@ -101,7 +101,7 @@ public class StorageControllerTests {
 	
 	@Test
 	void deleteById() throws Exception {
-		mockMvc.perform(delete("/storage/"+id))
+		mockMvc.perform(delete("/api/storage/"+id))
 		.andExpect(status().isOk())
 		.andExpect(content().string(""));
 		

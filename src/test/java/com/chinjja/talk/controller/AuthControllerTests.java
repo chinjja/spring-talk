@@ -72,7 +72,7 @@ public class AuthControllerTests {
 		
 		when(authService.register(dto)).thenReturn(user);
 		
-		mockMvc.perform(post("/auth/register")
+		mockMvc.perform(post("/api/auth/register")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(requestBody))
 		.andExpect(status().isCreated())
@@ -93,7 +93,7 @@ public class AuthControllerTests {
 		
 		when(authService.login(dto)).thenReturn(token);
 		
-		mockMvc.perform(post("/auth/login")
+		mockMvc.perform(post("/api/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(requestBody))
 		.andExpect(status().isOk())
@@ -104,7 +104,7 @@ public class AuthControllerTests {
 	
 	@Test
 	void logout() throws Exception {
-		mockMvc.perform(post("/auth/logout"))
+		mockMvc.perform(post("/api/auth/logout"))
 		.andExpect(status().isOk());
 		
 		verify(authService).logout(any());
@@ -121,7 +121,7 @@ public class AuthControllerTests {
 		
 		when(authService.refresh(req)).thenReturn(newToken);
 		
-		mockMvc.perform(post("/auth/refresh")
+		mockMvc.perform(post("/api/auth/refresh")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(token)))
 		.andExpect(status().isOk())

@@ -52,7 +52,7 @@ public class VerificationCodeControllerTests {
 	@Test
 	@WithMockCustomUser
 	void sendCode() throws Exception {
-		mockMvc.perform(post("/verification/send-code"))
+		mockMvc.perform(post("/api/verification/send-code"))
 		.andExpect(status().isOk())
 		.andExpect(content().string(""));
 		
@@ -66,7 +66,7 @@ public class VerificationCodeControllerTests {
 				.code("123123")
 				.build();
 		
-		mockMvc.perform(post("/verification/verify-code")
+		mockMvc.perform(post("/api/verification/verify-code")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(req)))
 		.andExpect(status().isOk())
@@ -80,7 +80,7 @@ public class VerificationCodeControllerTests {
 	void isVerified() throws Exception {
 		when(verificationCodeService.isVerified(user)).thenReturn(true);
 		
-		mockMvc.perform(get("/verification/is-verified"))
+		mockMvc.perform(get("/api/verification/is-verified"))
 		.andExpect(status().isOk())
 		.andExpect(content().string(objectMapper.writeValueAsString(true)));
 		
@@ -92,7 +92,7 @@ public class VerificationCodeControllerTests {
 	void isNotVerified() throws Exception {
 		when(verificationCodeService.isVerified(user)).thenReturn(false);
 		
-		mockMvc.perform(get("/verification/is-verified"))
+		mockMvc.perform(get("/api/verification/is-verified"))
 		.andExpect(status().isOk())
 		.andExpect(content().string(objectMapper.writeValueAsString(false)));
 		

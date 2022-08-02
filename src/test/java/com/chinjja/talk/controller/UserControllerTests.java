@@ -55,7 +55,7 @@ public class UserControllerTests {
 				.username(user.getUsername())
 				.build();
 		
-		mockMvc.perform(get("/users/user"))
+		mockMvc.perform(get("/api/users/user"))
 		.andExpect(status().isOk())
 		.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		
@@ -96,13 +96,13 @@ public class UserControllerTests {
 	@Test
 	@WithMockCustomUser
 	void whenUserIsAuth_thenSuccess() throws Exception {
-		updateProfile("/users/user", user);
+		updateProfile("/api/users/user", user);
 	}
 	
 	@Test
 	@WithMockCustomUser
 	void whenUserIsMe_thenSuccess() throws Exception {
-		updateProfile("/users/me", user);
+		updateProfile("/api/users/me", user);
 	}
 	
 	@Test
@@ -113,7 +113,7 @@ public class UserControllerTests {
 				.username("other")
 				.build();
 		assertThrows(Exception.class, () -> {
-			updateProfile("/users/other", other);
+			updateProfile("/api/users/other", other);
 		});
 	}
 }

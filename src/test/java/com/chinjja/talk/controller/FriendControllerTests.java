@@ -96,7 +96,7 @@ public class FriendControllerTests {
 		
 		doReturn(list).when(friendService).getFriends(user);
 		
-		mockMvc.perform(get("/friends"))
+		mockMvc.perform(get("/api/friends"))
 		.andExpect(status().isOk())
 		.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		
@@ -110,7 +110,7 @@ public class FriendControllerTests {
 		
 		doReturn(friend1).when(friendService).getFriend(user, other1);
 		
-		mockMvc.perform(get("/friends/other1"))
+		mockMvc.perform(get("/api/friends/other1"))
 		.andExpect(status().isOk())
 		.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		
@@ -127,7 +127,7 @@ public class FriendControllerTests {
 		
 		doReturn(friend1).when(friendService).addFriend(user, requestDto);
 		
-		mockMvc.perform(post("/friends")
+		mockMvc.perform(post("/api/friends")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(requestDto)))
 		.andExpect(status().isCreated())
@@ -141,7 +141,7 @@ public class FriendControllerTests {
 	void removeFriend() throws Exception {
 		doNothing().when(friendService).removeFriend(user, other1);
 		
-		mockMvc.perform(delete("/friends/other1"))
+		mockMvc.perform(delete("/api/friends/other1"))
 		.andExpect(status().isOk());
 		
 		verify(friendService).removeFriend(user, other1);

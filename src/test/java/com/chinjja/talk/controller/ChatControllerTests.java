@@ -94,7 +94,7 @@ public class ChatControllerTests {
 			
 			doReturn(chat).when(chatService).createOpenChat(user, request);
 			
-			mockMvc.perform(post("/chats/open")
+			mockMvc.perform(post("/api/chats/open")
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isCreated())
@@ -117,7 +117,7 @@ public class ChatControllerTests {
 			
 			doReturn(chat).when(chatService).createDirectChat(user, request);
 			
-			mockMvc.perform(post("/chats/direct")
+			mockMvc.perform(post("/api/chats/direct")
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isCreated())
@@ -140,7 +140,7 @@ public class ChatControllerTests {
 			
 			doReturn(chat).when(chatService).createGroupChat(user, request);
 			
-			mockMvc.perform(post("/chats/group")
+			mockMvc.perform(post("/api/chats/group")
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isCreated())
@@ -161,7 +161,7 @@ public class ChatControllerTests {
 			
 			doReturn(res).when(chatService).getPublicChats();
 			
-			mockMvc.perform(get("/chats")
+			mockMvc.perform(get("/api/chats")
 					.param("type", "open"))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
@@ -179,7 +179,7 @@ public class ChatControllerTests {
 			
 			doReturn(res).when(chatService).getJoinedChatList(user);
 			
-			mockMvc.perform(get("/chats")
+			mockMvc.perform(get("/api/chats")
 					.param("type", "join"))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
@@ -192,7 +192,7 @@ public class ChatControllerTests {
 			doReturn(chat).when(stringToChatConverter).convert("1");
 			doNothing().when(chatService).deleteChat(chat, user);
 			
-			mockMvc.perform(delete("/chats/1"))
+			mockMvc.perform(delete("/api/chats/1"))
 			.andExpect(status().isOk());
 			
 			verify(chatService).deleteChat(chat, user);
@@ -218,7 +218,7 @@ public class ChatControllerTests {
 			doReturn(chat).when(stringToChatConverter).convert("1");
 			doReturn(info).when(chatService).getChatInfo(chat, user);
 			
-			mockMvc.perform(get("/chats/1/info"))
+			mockMvc.perform(get("/api/chats/1/info"))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(info)));
 		}
@@ -231,7 +231,7 @@ public class ChatControllerTests {
 			
 			doReturn(chat).when(stringToChatConverter).convert("1");
 			
-			mockMvc.perform(post("/chats/1/read"))
+			mockMvc.perform(post("/api/chats/1/read"))
 			.andExpect(status().isOk());
 			
 			verify(chatService).read(chat, user);
