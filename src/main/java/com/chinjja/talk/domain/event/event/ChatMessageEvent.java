@@ -5,6 +5,7 @@ import com.chinjja.talk.domain.chat.model.ChatMessage;
 import lombok.Value;
 
 @Value
-public class ChatMessageAdded {
+public class ChatMessageEvent {
+	String type;
 	ChatMessage chatMessage;
 }

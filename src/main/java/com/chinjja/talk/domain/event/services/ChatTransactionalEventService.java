@@ -7,15 +7,12 @@ import javax.mail.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import com.chinjja.talk.domain.event.event.ChatAdded;
-import com.chinjja.talk.domain.event.event.ChatDeleted;
-import com.chinjja.talk.domain.event.event.ChatMessageAdded;
-import com.chinjja.talk.domain.event.event.ChatUserAdded;
-import com.chinjja.talk.domain.event.event.ChatUserDeleted;
-import com.chinjja.talk.domain.event.event.ChatUserUpdated;
-import com.chinjja.talk.domain.event.event.FriendAdded;
-import com.chinjja.talk.domain.event.event.FriendDeleted;
+import com.chinjja.talk.domain.event.event.ChatEvent;
+import com.chinjja.talk.domain.event.event.ChatMessageEvent;
+import com.chinjja.talk.domain.event.event.ChatUserEvent;
+import com.chinjja.talk.domain.event.event.FriendEvent;
 import com.chinjja.talk.domain.event.event.ResetPasswordSent;
+import com.chinjja.talk.domain.event.event.UserEvent;
 import com.chinjja.talk.domain.event.event.VerifyCodeSent;
 import com.chinjja.talk.domain.messenger.services.MessengerService;
 import com.chinjja.talk.infra.mail.services.EmailService;
@@ -31,51 +28,35 @@ public class ChatTransactionalEventService {
 	private final EmailService emailService;
 
 	@TransactionalEventListener
-	public void onData(ChatAdded event) {
-		log.info("chat added: {}", event.getChat());
-		messengerService.toUser(event.getUser(), "added", event.getChat());
+	public void onData(ChatEvent event) {
+		log.info("chat: {}", event);
+		messengerService.toUser(event.getUser(), event.getType(), event.getChat());
 	}
 	
 	@TransactionalEventListener
-	public void onData(ChatDeleted event) {
-		log.info("chat deleted: {}", event.getChat());
-		messengerService.toUser(event.getUser(), "removed", event.getChat());
+	public void onData(ChatUserEvent event) {
+		log.info("chat user: {}", event);
+		messengerService.toChat(event.getType(), event.getChatUser());
 	}
 	
 	@TransactionalEventListener
-	public void onData(ChatUserAdded event) {
-		log.info("chat user added: {}", event.getChatUser());
-		messengerService.toChat("added", event.getChatUser());
+	public void onData(ChatMessageEvent event) {
+		log.info("chat message: {}", event);
+		messengerService.toChat(event.getType(), event.getChatMessage());
 	}
 	
 	@TransactionalEventListener
-	public void onData(ChatUserUpdated event) {
-		log.info("chat user updated: {}", event.getChatUser());
-		messengerService.toChat("updated", event.getChatUser());
+	public void onData(FriendEvent event) {
+		log.info("friend: {}", event);
+		var friend = event.getFriend();
+		messengerService.toUser(friend.getOwner(), event.getType(), friend);
 	}
 	
 	@TransactionalEventListener
-	public void onData(ChatUserDeleted event) {
-		log.info("chat user deleted: {}", event.getChatUser());
-		messengerService.toChat("removed", event.getChatUser());
-	}
-	
-	@TransactionalEventListener
-	public void onData(ChatMessageAdded event) {
-		log.info("chat message added: {}", event.getChatMessage());
-		messengerService.toChat("added", event.getChatMessage());
-	}
-	
-	@TransactionalEventListener
-	public void onData(FriendAdded event) {
-		log.info("friend added: {}", event.getFriend());
-		messengerService.toUser(event.getUser(), "added", event.getFriend());
-	}
-	
-	@TransactionalEventListener
-	public void onData(FriendDeleted event) {
-		log.info("friend deleted: {}", event.getUser());
-		messengerService.toUser(event.getUser(), "removed", event.getFriend());
+	public void onData(UserEvent event) {
+		log.info("friend: {}", event);
+		var user = event.getUser();
+		messengerService.toUser(user, event.getType(), user);
 	}
 	
 	@TransactionalEventListener

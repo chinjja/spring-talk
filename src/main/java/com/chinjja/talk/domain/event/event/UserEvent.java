@@ -1,12 +1,11 @@
 package com.chinjja.talk.domain.event.event;
 
-import com.chinjja.talk.domain.chat.model.Chat;
 import com.chinjja.talk.domain.user.model.User;
 
 import lombok.Value;
 
 @Value
-public class ChatAdded {
+public class UserEvent {
+	String type;
 	User user;
-	Chat chat;
 }

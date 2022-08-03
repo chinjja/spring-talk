@@ -27,12 +27,10 @@ import com.chinjja.talk.domain.chat.model.Chat;
 import com.chinjja.talk.domain.chat.model.ChatMessage;
 import com.chinjja.talk.domain.chat.model.ChatUser;
 import com.chinjja.talk.domain.chat.model.DirectChat;
-import com.chinjja.talk.domain.event.event.ChatAdded;
-import com.chinjja.talk.domain.event.event.ChatDeleted;
-import com.chinjja.talk.domain.event.event.ChatMessageAdded;
-import com.chinjja.talk.domain.event.event.ChatUserAdded;
-import com.chinjja.talk.domain.event.event.ChatUserDeleted;
-import com.chinjja.talk.domain.event.event.ChatUserUpdated;
+import com.chinjja.talk.domain.event.event.ChatEvent;
+import com.chinjja.talk.domain.event.event.ChatMessageEvent;
+import com.chinjja.talk.domain.event.event.ChatUserEvent;
+import com.chinjja.talk.domain.event.event.Event;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
 
@@ -175,8 +173,8 @@ public class ChatService {
 	private ChatUser join(Chat chat, User user) {
 		var chatUser = chatUserRepository.save(new ChatUser(chat, user));
 
-		applicationEventPublisher.publishEvent(new ChatAdded(user, chat));
-		applicationEventPublisher.publishEvent(new ChatUserAdded(chatUser));
+		applicationEventPublisher.publishEvent(new ChatEvent(Event.ADDED, user, chat));
+		applicationEventPublisher.publishEvent(new ChatUserEvent(Event.ADDED, chatUser));
 		return chatUser;
 	}
 	
@@ -202,8 +200,8 @@ public class ChatService {
 	@Transactional
 	private void leave(ChatUser chatUser) {
 		chatUserRepository.delete(chatUser);
-		applicationEventPublisher.publishEvent(new ChatDeleted(chatUser.getUser(), chatUser.getChat()));
-		applicationEventPublisher.publishEvent(new ChatUserDeleted(chatUser));
+		applicationEventPublisher.publishEvent(new ChatEvent(Event.REMOVED, chatUser.getUser(), chatUser.getChat()));
+		applicationEventPublisher.publishEvent(new ChatUserEvent(Event.REMOVED, chatUser));
 	}
 	
 	public boolean isJoin(Chat chat, User user) {
@@ -218,7 +216,7 @@ public class ChatService {
 				.sender(sender)
 				.message(dto.getMessage())
 				.build());
-		applicationEventPublisher.publishEvent(new ChatMessageAdded(chatMessage));
+		applicationEventPublisher.publishEvent(new ChatMessageEvent(Event.ADDED, chatMessage));
 		return chatMessage;
 	}
 	
@@ -258,7 +256,7 @@ public class ChatService {
 		chatUser.setReadAt(Instant.now());
 		chatUser = chatUserRepository.save(chatUser);
 
-		applicationEventPublisher.publishEvent(new ChatUserUpdated(chatUser));
+		applicationEventPublisher.publishEvent(new ChatUserEvent(Event.UPDATED, chatUser));
 		return chatUser;
 	}
 	

@@ -6,7 +6,8 @@ import com.chinjja.talk.domain.user.model.User;
 import lombok.Value;
 
 @Value
-public class ChatDeleted {
+public class ChatEvent {
+	String type;
 	User user;
 	Chat chat;
 }

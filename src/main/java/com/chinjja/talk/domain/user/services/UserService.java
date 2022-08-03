@@ -3,9 +3,13 @@ package com.chinjja.talk.domain.user.services;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.chinjja.talk.domain.event.event.Event;
+import com.chinjja.talk.domain.event.event.FriendEvent;
+import com.chinjja.talk.domain.event.event.UserEvent;
 import com.chinjja.talk.domain.storage.model.Storage;
 import com.chinjja.talk.domain.storage.services.StorageService;
 import com.chinjja.talk.domain.user.dao.UserRepository;
@@ -22,11 +26,14 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
 	private final UserRepository userRepository;
 	private final StorageService storageService;
+	private final FriendService friendService;
+	private final ApplicationEventPublisher applicationEventPublisher;
 	
 	@Transactional
 	public User save(User user) {
 		user = userRepository.save(user);
 		log.info("save. {}", user);
+		applicationEventPublisher.publishEvent(new UserEvent(Event.UPDATED, user));
 		return user;
 	}
 	
@@ -44,15 +51,16 @@ public class UserService {
 	
 	@Transactional
 	public void addRole(User user, String... roles) {
+		log.info("add roles. {}, {}", user, roles);
 		var list = new HashSet<>(user.getRoles());
 		list.addAll(Arrays.asList(roles));
 		user.setRoles(list);
-		user = userRepository.save(user);
-		log.info("add role success. {}", user);
+		user = save(user);
 	}
 	
 	@Transactional
 	public User updateProfile(User user, UpdateProfileRequest request) {
+		log.info("update profil.: {}, {}", user, request);
 		if(request.getName() != null) {
 			user.setName(request.getName());
 		}
@@ -66,6 +74,11 @@ public class UserService {
 					.build());
 			user.setPhotoId(storage.getId());
 		}
-		return save(user);
+		user = save(user);
+		var followers = friendService.getFollowers(user);
+		for(var follower : followers) {
+			applicationEventPublisher.publishEvent(new FriendEvent(Event.UPDATED,follower));
+		}
+		return user;
 	}
 }

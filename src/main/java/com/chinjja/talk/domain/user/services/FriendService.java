@@ -6,9 +6,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.chinjja.talk.domain.event.event.FriendAdded;
-import com.chinjja.talk.domain.event.event.FriendDeleted;
+import com.chinjja.talk.domain.event.event.Event;
+import com.chinjja.talk.domain.event.event.FriendEvent;
 import com.chinjja.talk.domain.user.dao.FriendRepository;
+import com.chinjja.talk.domain.user.dao.UserRepository;
 import com.chinjja.talk.domain.user.dto.AddFriendRequest;
 import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
@@ -23,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FriendService {
 	private final FriendRepository friendRepository;
 	private final ApplicationEventPublisher applicationEventPublisher;
-	private final UserService userService;
+	private final UserRepository userRepository;
 	
 	@Transactional
 	public Friend addFriend(User owner, AddFriendRequest request) {
@@ -31,13 +32,13 @@ public class FriendService {
 		if(owner.getUsername().equals(username)) {
 			throw new IllegalArgumentException("cannat self friend");
 		}
-		var user = userService.getByUsername(username);
+		var user = userRepository.findByUsername(username);
 		if(isFriend(owner, user)) {
 			throw new IllegalArgumentException("already friend");
 		}
 		
 		var friend = friendRepository.save(new Friend(owner, user));
-		applicationEventPublisher.publishEvent(new FriendAdded(owner, friend));
+		applicationEventPublisher.publishEvent(new FriendEvent(Event.ADDED, friend));
 		log.info("add friend. {}", friend);
 		return friend;
 	}
@@ -49,7 +50,7 @@ public class FriendService {
 			throw new IllegalArgumentException("not friend");
 		}
 		friendRepository.delete(friend);
-		applicationEventPublisher.publishEvent(new FriendDeleted(owner, user));
+		applicationEventPublisher.publishEvent(new FriendEvent(Event.REMOVED, friend));
 		log.info("remove friend. {}", user);
 	}
 	
@@ -63,5 +64,24 @@ public class FriendService {
 	
 	public Friend getFriend(User owner, User user) {
 		return friendRepository.findByOwnerAndUser(owner, user);
+	}
+	
+	public List<Friend> getFollowers(User user) {
+		return friendRepository.findByUser(user);
+	}
+	
+	public List<Friend> getFollowers(Friend user) {
+		return friendRepository.findByUser(user.getUser());
+	}
+	
+	@Transactional
+	public void updateName(Friend friend, String name) {
+		log.info("update friend name. {}, {}", friend, name);
+		friend.setName(name);
+		friendRepository.save(friend);
+		var followers = getFollowers(friend);
+		for(var follower : followers) {
+			applicationEventPublisher.publishEvent(new FriendEvent(Event.UPDATED, follower));
+		}
 	}
 }

@@ -2,7 +2,6 @@ package com.chinjja.talk.services;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,15 +15,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.chinjja.talk.domain.chat.model.Chat;
-import com.chinjja.talk.domain.event.event.ChatDeleted;
-import com.chinjja.talk.domain.event.event.FriendAdded;
-import com.chinjja.talk.domain.event.event.FriendDeleted;
+import com.chinjja.talk.domain.event.event.ChatEvent;
+import com.chinjja.talk.domain.event.event.Event;
+import com.chinjja.talk.domain.event.event.FriendEvent;
 import com.chinjja.talk.domain.user.dao.FriendRepository;
+import com.chinjja.talk.domain.user.dao.UserRepository;
 import com.chinjja.talk.domain.user.dto.AddFriendRequest;
 import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.FriendService;
-import com.chinjja.talk.domain.user.services.UserService;
 
 @ExtendWith(MockitoExtension.class)
 public class FriendServiceTests {
@@ -32,7 +31,7 @@ public class FriendServiceTests {
 	FriendRepository friendRepository;
 	
 	@Mock
-	UserService userService;
+	UserRepository userRepository;
 	
 	@Mock
 	ApplicationEventPublisher applicationEventPublisher;
@@ -64,7 +63,7 @@ public class FriendServiceTests {
 	
 	@Test
 	void addFriend() {
-		doReturn(other).when(userService).getByUsername("other");
+		when(userRepository.findByUsername("other")).thenReturn(other);
 		when(friendRepository.save(friend)).thenReturn(friend);
 		
 		friendService.addFriend(user, AddFriendRequest.builder()
@@ -72,7 +71,7 @@ public class FriendServiceTests {
 				.build());
 		
 		verify(friendRepository).save(friend);
-		verify(applicationEventPublisher).publishEvent(new FriendAdded(user, friend));
+		verify(applicationEventPublisher).publishEvent(new FriendEvent(Event.ADDED, friend));
 	}
 	
 	@Test
@@ -103,8 +102,8 @@ public class FriendServiceTests {
 		when(friendRepository.findByOwnerAndUser(any(), any())).thenReturn(friend);
 		friendService.removeFriend(user, other);
 		verify(friendRepository).delete(friend);
-		verify(applicationEventPublisher).publishEvent(new FriendDeleted(user, other));
-		verify(applicationEventPublisher).publishEvent(new ChatDeleted(user, any()));
+		verify(applicationEventPublisher).publishEvent(new FriendEvent(Event.REMOVED, friend));
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.REMOVED, user, any()));
 	}
 	
 	@Test

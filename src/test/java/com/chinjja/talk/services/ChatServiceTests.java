@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -33,6 +34,10 @@ import com.chinjja.talk.domain.chat.model.ChatMessage;
 import com.chinjja.talk.domain.chat.model.ChatUser;
 import com.chinjja.talk.domain.chat.model.DirectChat;
 import com.chinjja.talk.domain.chat.services.ChatService;
+import com.chinjja.talk.domain.event.event.ChatEvent;
+import com.chinjja.talk.domain.event.event.ChatMessageEvent;
+import com.chinjja.talk.domain.event.event.ChatUserEvent;
+import com.chinjja.talk.domain.event.event.Event;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
 
@@ -123,6 +128,10 @@ class ChatServiceTests {
 		
 		verify(chatRepository).save(chatNoId);
 		verify(chatUserRepository).save(chatUser);
+		
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.ADDED, owner, chat));
+		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.ADDED, chatUser));
+		verifyNoMoreInteractions(applicationEventPublisher);
 	}
 	
 	@Test
@@ -152,9 +161,13 @@ class ChatServiceTests {
 				.user2(user)
 				.build();
 		
+		var chatUser1 = new ChatUser(chat, owner);
+		var chatUser2 = new ChatUser(chat, user);
 		when(userService.getByUsername("other")).thenReturn(user);
 		when(directChatRepository.save(directChat)).thenReturn(directChat);
 		when(chatRepository.save(chatNoId)).thenReturn(chat);
+		when(chatUserRepository.save(chatUser1)).thenReturn(chatUser1);
+		when(chatUserRepository.save(chatUser2)).thenReturn(chatUser2);
 		
 		var savedChat = chatService.createDirectChat(owner, NewDirectChatRequest.builder()
 				.username("other")
@@ -165,8 +178,14 @@ class ChatServiceTests {
 		verify(directChatRepository).findByUser1AndUser2(owner, user);
 		verify(directChatRepository).save(directChat);
 		verify(chatRepository).save(chatNoId);
-		verify(chatUserRepository).save(new ChatUser(chat, user));
-		verify(chatUserRepository).save(new ChatUser(chat, owner));
+		verify(chatUserRepository).save(chatUser1);
+		verify(chatUserRepository).save(chatUser2);
+		
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.ADDED, owner, chat));
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.ADDED, user, chat));
+		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.ADDED, chatUser1));
+		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.ADDED, chatUser2));
+		verifyNoMoreInteractions(applicationEventPublisher);
 	}
 	
 	@Test
@@ -178,6 +197,12 @@ class ChatServiceTests {
 		verify(chatUserRepository).delete(ownerMember);
 		verify(chatUserRepository).delete(userMember);
 		verify(chatRepository).delete(chat);
+		
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.REMOVED, owner, chat));
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.REMOVED, user, chat));
+		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.REMOVED, ownerMember));
+		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.REMOVED, userMember));
+		verifyNoMoreInteractions(applicationEventPublisher);
 	}
 	
 	@Test
@@ -193,8 +218,16 @@ class ChatServiceTests {
 				.id(1L)
 				.joinable(true)
 				.build();
+		var chatUser = new ChatUser(chat, user);
+		when(chatUserRepository.save(chatUser)).thenReturn(chatUser);
+		
 		chatService.joinToChat(chat, user);
-		verify(chatUserRepository).save(new ChatUser(chat, user));
+		
+		verify(chatUserRepository).save(chatUser);
+		
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.ADDED, user, chat));
+		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.ADDED, chatUser));
+		verifyNoMoreInteractions(applicationEventPublisher);
 	}
 	
 	@Test
@@ -230,11 +263,18 @@ class ChatServiceTests {
 	@Test
 	void leaveFromChat() {
 		var chat = Chat.builder()
+				.id(2L)
 				.joinable(true)
 				.build();
-		when(chatUserRepository.findByChatAndUser(chat, owner)).thenReturn(userMember);
-		chatService.leaveFromChat(chat, owner);
-		verify(chatUserRepository).delete(userMember);
+		var chatUser = new ChatUser(chat, user);
+		when(chatUserRepository.findByChatAndUser(chat, user)).thenReturn(chatUser);
+		
+		chatService.leaveFromChat(chat, user);
+		verify(chatUserRepository).delete(chatUser);
+		
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.REMOVED, user, chat));
+		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.REMOVED, chatUser));
+		verifyNoMoreInteractions(applicationEventPublisher);
 	}
 	
 	@Test
@@ -274,6 +314,9 @@ class ChatServiceTests {
 				.id(null)
 				.instant(any())
 				.build());
+		
+		verify(applicationEventPublisher).publishEvent(new ChatMessageEvent(Event.ADDED, message));
+		verifyNoMoreInteractions(applicationEventPublisher);
 	}
 	
 	@Test
@@ -332,12 +375,35 @@ class ChatServiceTests {
 				.id(1L)
 				.joinable(true)
 				.build();
-		when(userService.getByUsername(user.getUsername())).thenReturn(user);
-		when(chatUserRepository.save(new ChatUser(chat, user))).thenReturn(userMember);
+		
+		var user1 = User.builder()
+				.id(10L)
+				.username("user1")
+				.build();
+		
+		var user2 = User.builder()
+				.id(11L)
+				.username("user2")
+				.build();
+		var chatUser1 = new ChatUser(chat, user1);
+		var chatUser2 = new ChatUser(chat, user2);
+		when(userService.getByUsername("user1")).thenReturn(user1);
+		when(userService.getByUsername("user2")).thenReturn(user2);
+		
+		when(chatUserRepository.save(chatUser1)).thenReturn(chatUser1);
+		when(chatUserRepository.save(chatUser2)).thenReturn(chatUser2);
+		
 		chatService.invite(chat, InviteUserRequest.builder()
-				.usernameList(Arrays.asList(user.getUsername()))
+				.usernameList(Arrays.asList("user1", "user2"))
 				.build());
-		verify(chatUserRepository).save(new ChatUser(chat, user));
+		verify(chatUserRepository).save(chatUser1);
+		verify(chatUserRepository).save(chatUser2);
+
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.ADDED, user1, chat));
+		verify(applicationEventPublisher).publishEvent(new ChatEvent(Event.ADDED, user2, chat));
+		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.ADDED, chatUser1));
+		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.ADDED, chatUser2));
+		verifyNoMoreInteractions(applicationEventPublisher);
 	}
 	
 	@Test
