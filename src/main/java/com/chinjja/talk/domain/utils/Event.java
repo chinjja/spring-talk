@@ -1,4 +1,4 @@
-package com.chinjja.talk.domain.event.event;
+package com.chinjja.talk.domain.utils;
 
 public interface Event {
 	public final String ADDED = "added";

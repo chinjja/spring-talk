@@ -21,18 +21,18 @@ import com.chinjja.talk.domain.chat.dto.NewDirectChatRequest;
 import com.chinjja.talk.domain.chat.dto.NewGroupChatRequest;
 import com.chinjja.talk.domain.chat.dto.NewMessageRequest;
 import com.chinjja.talk.domain.chat.dto.NewOpenChatRequest;
+import com.chinjja.talk.domain.chat.event.ChatEvent;
+import com.chinjja.talk.domain.chat.event.ChatMessageEvent;
+import com.chinjja.talk.domain.chat.event.ChatUserEvent;
 import com.chinjja.talk.domain.chat.exception.AlreadyJoinException;
 import com.chinjja.talk.domain.chat.exception.NotJoinException;
 import com.chinjja.talk.domain.chat.model.Chat;
 import com.chinjja.talk.domain.chat.model.ChatMessage;
 import com.chinjja.talk.domain.chat.model.ChatUser;
 import com.chinjja.talk.domain.chat.model.DirectChat;
-import com.chinjja.talk.domain.event.event.ChatEvent;
-import com.chinjja.talk.domain.event.event.ChatMessageEvent;
-import com.chinjja.talk.domain.event.event.ChatUserEvent;
-import com.chinjja.talk.domain.event.event.Event;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
+import com.chinjja.talk.domain.utils.Event;
 
 import lombok.RequiredArgsConstructor;
 

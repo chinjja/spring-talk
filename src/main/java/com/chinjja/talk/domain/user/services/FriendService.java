@@ -6,13 +6,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.chinjja.talk.domain.event.event.Event;
-import com.chinjja.talk.domain.event.event.FriendEvent;
 import com.chinjja.talk.domain.user.dao.FriendRepository;
 import com.chinjja.talk.domain.user.dao.UserRepository;
 import com.chinjja.talk.domain.user.dto.AddFriendRequest;
+import com.chinjja.talk.domain.user.event.FriendEvent;
 import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
+import com.chinjja.talk.domain.utils.Event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

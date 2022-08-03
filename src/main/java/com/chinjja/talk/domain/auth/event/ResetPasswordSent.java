@@ -1,4 +1,4 @@
-package com.chinjja.talk.domain.event.event;
+package com.chinjja.talk.domain.auth.event;
 
 import lombok.Builder;
 import lombok.Value;

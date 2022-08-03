@@ -7,14 +7,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.chinjja.talk.domain.event.event.Event;
-import com.chinjja.talk.domain.event.event.FriendEvent;
-import com.chinjja.talk.domain.event.event.UserEvent;
 import com.chinjja.talk.domain.storage.model.Storage;
 import com.chinjja.talk.domain.storage.services.StorageService;
 import com.chinjja.talk.domain.user.dao.UserRepository;
 import com.chinjja.talk.domain.user.dto.UpdateProfileRequest;
+import com.chinjja.talk.domain.user.event.FriendEvent;
+import com.chinjja.talk.domain.user.event.UserEvent;
 import com.chinjja.talk.domain.user.model.User;
+import com.chinjja.talk.domain.utils.Event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -14,16 +14,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import com.chinjja.talk.domain.chat.event.ChatEvent;
 import com.chinjja.talk.domain.chat.model.Chat;
-import com.chinjja.talk.domain.event.event.ChatEvent;
-import com.chinjja.talk.domain.event.event.Event;
-import com.chinjja.talk.domain.event.event.FriendEvent;
 import com.chinjja.talk.domain.user.dao.FriendRepository;
 import com.chinjja.talk.domain.user.dao.UserRepository;
 import com.chinjja.talk.domain.user.dto.AddFriendRequest;
+import com.chinjja.talk.domain.user.event.FriendEvent;
 import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.FriendService;
+import com.chinjja.talk.domain.utils.Event;
 
 @ExtendWith(MockitoExtension.class)
 public class FriendServiceTests {

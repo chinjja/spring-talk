@@ -1,4 +1,4 @@
-package com.chinjja.talk.domain.event.event;
+package com.chinjja.talk.domain.chat.event;
 
 import com.chinjja.talk.domain.chat.model.ChatUser;
 

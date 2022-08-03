@@ -17,18 +17,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.chinjja.talk.domain.event.event.Event;
-import com.chinjja.talk.domain.event.event.FriendEvent;
-import com.chinjja.talk.domain.event.event.UserEvent;
 import com.chinjja.talk.domain.storage.model.Storage;
 import com.chinjja.talk.domain.storage.services.StorageService;
 import com.chinjja.talk.domain.user.dao.FriendRepository;
 import com.chinjja.talk.domain.user.dao.UserRepository;
 import com.chinjja.talk.domain.user.dto.UpdateProfileRequest;
+import com.chinjja.talk.domain.user.event.FriendEvent;
+import com.chinjja.talk.domain.user.event.UserEvent;
 import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.FriendService;
 import com.chinjja.talk.domain.user.services.UserService;
+import com.chinjja.talk.domain.utils.Event;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTests {

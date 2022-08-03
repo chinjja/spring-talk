@@ -19,9 +19,9 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import com.chinjja.talk.domain.auth.common.RandomProvider;
 import com.chinjja.talk.domain.auth.dao.VerificationCodeRepository;
+import com.chinjja.talk.domain.auth.event.VerifyCodeSent;
 import com.chinjja.talk.domain.auth.model.VerificationCode;
 import com.chinjja.talk.domain.auth.services.VerificationCodeService;
-import com.chinjja.talk.domain.event.event.VerifyCodeSent;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
 

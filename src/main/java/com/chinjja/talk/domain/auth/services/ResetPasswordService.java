@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.chinjja.talk.domain.auth.dao.ResetPasswordRepository;
+import com.chinjja.talk.domain.auth.event.ResetPasswordSent;
 import com.chinjja.talk.domain.auth.model.ResetPassword;
-import com.chinjja.talk.domain.event.event.ResetPasswordSent;
 import com.chinjja.talk.domain.user.services.UserService;
 import com.chinjja.talk.domain.utils.CurrentContextPathProvider;
 import com.chinjja.talk.domain.utils.TimeProvider;
