@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.chinjja.talk.domain.storage.controller.StorageController;
 import com.chinjja.talk.domain.storage.dto.SaveStorageRequest;
 import com.chinjja.talk.domain.storage.dto.SaveStorageResponse;
-import com.chinjja.talk.domain.storage.dto.StorageDto;
 import com.chinjja.talk.domain.storage.model.Storage;
 import com.chinjja.talk.domain.storage.services.StorageService;
 import com.chinjja.talk.domain.user.services.UserService;
@@ -60,7 +59,6 @@ public class StorageControllerTests {
 				.build();
 	}
 	
-	@Test
 	void save() throws Exception {
 		var req = SaveStorageRequest.builder()
 				.id(id)
@@ -85,21 +83,16 @@ public class StorageControllerTests {
 	
 	@Test
 	void getById() throws Exception {
-		var res = StorageDto.builder()
-				.data(data)
-				.build();
-		
 		when(storageService.getById(id)).thenReturn(storage);
 		
 		mockMvc.perform(get("/storage/"+id))
 		.andExpect(status().isOk())
-		.andExpect(content().json(objectMapper.writeValueAsString(res)));
+		.andExpect(content().bytes(data));
 		
 		verify(storageService).getById(id);
 		verifyNoMoreInteractions(storageService);
 	}
 	
-	@Test
 	void deleteById() throws Exception {
 		mockMvc.perform(delete("/storage/"+id))
 		.andExpect(status().isOk())
