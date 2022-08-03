@@ -15,6 +15,7 @@ import com.chinjja.talk.domain.user.event.FriendEvent;
 import com.chinjja.talk.domain.user.event.UserEvent;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.utils.Event;
+import com.chinjja.talk.domain.utils.UuidProvider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
+	private final UuidProvider uuidProvider;
 	private final UserRepository userRepository;
 	private final StorageService storageService;
 	private final FriendService friendService;
@@ -61,23 +63,33 @@ public class UserService {
 	@Transactional
 	public User updateProfile(User user, UpdateProfileRequest request) {
 		log.info("update profil.: {}, {}", user, request);
+		boolean changed = false;
 		if(request.getName() != null) {
 			user.setName(request.getName());
+			changed = true;
 		}
 		if(request.getState() != null) {
 			user.setState(request.getState());
+			changed = true;
 		}
 		if(request.getPhoto() != null) {
+			if(user.getPhotoId() != null) {
+				storageService.deleteById(user.getPhotoId());
+			}
+			var id = uuidProvider.random().toString();
 			var storage = storageService.save(Storage.builder()
-					.id(user.getUsername()+"/photo")
+					.id(id)
 					.data(request.getPhoto())
 					.build());
 			user.setPhotoId(storage.getId());
+			changed = true;
 		}
-		user = save(user);
-		var followers = friendService.getFollowers(user);
-		for(var follower : followers) {
-			applicationEventPublisher.publishEvent(new FriendEvent(Event.UPDATED,follower));
+		if(changed) {
+			user = save(user);
+			var followers = friendService.getFollowers(user);
+			for(var follower : followers) {
+				applicationEventPublisher.publishEvent(new FriendEvent(Event.UPDATED,follower));
+			}
 		}
 		return user;
 	}

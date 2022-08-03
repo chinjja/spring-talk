@@ -7,8 +7,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,6 +31,7 @@ import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.FriendService;
 import com.chinjja.talk.domain.user.services.UserService;
 import com.chinjja.talk.domain.utils.Event;
+import com.chinjja.talk.domain.utils.UuidProvider;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTests {
@@ -46,6 +49,9 @@ class UserServiceTests {
 	
 	@Mock
 	ApplicationEventPublisher applicationEventPublisher;
+	
+	@Mock
+	UuidProvider uuidProvider;
 	
 	@InjectMocks
 	UserService userService;
@@ -95,46 +101,90 @@ class UserServiceTests {
 		verifyNoMoreInteractions(applicationEventPublisher);
 	}
 	
-	@Test
-	void updateProfile() {
-		var image = "image".getBytes();
-		var updatedUser = user.toBuilder()
-				.name("hello")
-				.state("not working")
-				.photoId(user.getUsername()+"/photo")
-				.build();
-		var storage = Storage.builder()
-				.id(user.getUsername()+"/photo")
-				.data(image)
-				.build();
+	@Nested
+	class UpdateProfile {
+		UUID uuid;
+		byte[] image;
+		User updatedUser;
+		Storage storage;
+		User user1;
+		User user2;
+		Friend friend1;
+		Friend friend2;
+		
+		@BeforeEach
+		void setUp() {
+			uuid = UUID.randomUUID();
+			image = "image".getBytes();
+			updatedUser = user.toBuilder()
+					.name("hello")
+					.state("not working")
+					.photoId(uuid.toString())
+					.build();
+			storage = Storage.builder()
+					.id(uuid.toString())
+					.data(image)
+					.build();
 
-		var user1 = User.builder()
-				.id(100L)
-				.username("user1")
-				.build();
-		var user2 = User.builder()
-				.id(101L)
-				.username("user2")
-				.build();
-		var friend1 = new Friend(user, user1);
-		var friend2 = new Friend(user, user2);
+			user1 = User.builder()
+					.id(100L)
+					.username("user1")
+					.build();
+			user2 = User.builder()
+					.id(101L)
+					.username("user2")
+					.build();
+			friend1 = new Friend(user, user1);
+			friend2 = new Friend(user, user2);
+		}
 		
-		when(storageService.save(storage)).thenReturn(storage);
-		when(userRepository.save(updatedUser)).thenReturn(updatedUser);
+		@Test
+		void updateProfile() {
+			when(storageService.save(storage)).thenReturn(storage);
+			when(userRepository.save(updatedUser)).thenReturn(updatedUser);
+			
+			when(friendService.getFollowers(user)).thenReturn(Arrays.asList(friend1, friend2));
+			when(uuidProvider.random()).thenReturn(uuid);
+			
+			userService.updateProfile(user, UpdateProfileRequest.builder()
+					.name("hello")
+					.state("not working")
+					.photo(image)
+					.build());
+			
+			verify(userRepository).save(updatedUser);
+			verify(storageService).save(storage);
+			
+			verify(applicationEventPublisher).publishEvent(new UserEvent(Event.UPDATED, updatedUser));
+			verify(applicationEventPublisher).publishEvent(new FriendEvent(Event.UPDATED, friend1));
+			verify(applicationEventPublisher).publishEvent(new FriendEvent(Event.UPDATED, friend2));
+			verifyNoMoreInteractions(applicationEventPublisher);
+		}
 		
-		when(friendService.getFollowers(user)).thenReturn(Arrays.asList(friend1, friend2));
-		
-		userService.updateProfile(user, UpdateProfileRequest.builder()
-				.name("hello")
-				.state("not working")
-				.photo(image)
-				.build());
-		
-		verify(userRepository).save(updatedUser);
-		
-		verify(applicationEventPublisher).publishEvent(new UserEvent(Event.UPDATED, updatedUser));
-		verify(applicationEventPublisher).publishEvent(new FriendEvent(Event.UPDATED, friend1));
-		verify(applicationEventPublisher).publishEvent(new FriendEvent(Event.UPDATED, friend2));
-		verifyNoMoreInteractions(applicationEventPublisher);
+		@Test
+		void whenPhotoIdExists_thenRemoveAndInsertPhoto() {
+			var removeUuid = UUID.randomUUID();
+			user.setPhotoId(removeUuid.toString());
+			
+			when(storageService.save(storage)).thenReturn(storage);
+			when(userRepository.save(updatedUser)).thenReturn(updatedUser);
+			
+			when(friendService.getFollowers(user)).thenReturn(Arrays.asList(friend1, friend2));
+			when(uuidProvider.random()).thenReturn(uuid);
+			
+			userService.updateProfile(user, UpdateProfileRequest.builder()
+					.name("hello")
+					.state("not working")
+					.photo(image)
+					.build());
+			verify(userRepository).save(updatedUser);
+			verify(storageService).deleteById(removeUuid.toString());
+			verify(storageService).save(storage);
+			
+			verify(applicationEventPublisher).publishEvent(new UserEvent(Event.UPDATED, updatedUser));
+			verify(applicationEventPublisher).publishEvent(new FriendEvent(Event.UPDATED, friend1));
+			verify(applicationEventPublisher).publishEvent(new FriendEvent(Event.UPDATED, friend2));
+			verifyNoMoreInteractions(applicationEventPublisher);
+		}
 	}
 }
