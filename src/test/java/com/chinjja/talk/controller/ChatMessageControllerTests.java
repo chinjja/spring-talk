@@ -31,6 +31,7 @@ import com.chinjja.talk.domain.chat.model.ChatMessage;
 import com.chinjja.talk.domain.chat.services.ChatService;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
+import com.chinjja.talk.security.MockUser;
 import com.chinjja.talk.security.WithMockCustomUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -60,11 +61,7 @@ public class ChatMessageControllerTests {
 	
 	@BeforeEach
 	void setUp() {
-		user = User.builder()
-				.id(1L)
-				.username("user")
-				.password("1234")
-				.build();
+		user = MockUser.user;
 	}
 	
 	@Nested

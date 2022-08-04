@@ -29,6 +29,7 @@ import com.chinjja.talk.domain.user.model.Friend;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.FriendService;
 import com.chinjja.talk.domain.user.services.UserService;
+import com.chinjja.talk.security.MockUser;
 import com.chinjja.talk.security.WithMockCustomUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -58,11 +59,7 @@ public class FriendControllerTests {
 	
 	@BeforeEach
 	void setUp() {
-		user = User.builder()
-				.id(1L)
-				.username("user")
-				.password("1234")
-				.build();
+		user = MockUser.user;
 		
 		other1 = User.builder()
 				.id(2L)

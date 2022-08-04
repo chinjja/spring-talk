@@ -26,6 +26,7 @@ import com.chinjja.talk.domain.auth.model.Token;
 import com.chinjja.talk.domain.auth.services.AuthService;
 import com.chinjja.talk.domain.user.model.User;
 import com.chinjja.talk.domain.user.services.UserService;
+import com.chinjja.talk.security.MockUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(AuthController.class)
@@ -51,10 +52,7 @@ public class AuthControllerTests {
 	
 	@BeforeEach
 	void setUp() {
-		user = User.builder()
-				.username("user")
-				.password("1234")
-				.build();
+		user = MockUser.user;
 		token = Token.builder()
 				.user(user)
 				.accessToken("access")
