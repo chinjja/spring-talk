@@ -6,6 +6,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,13 +49,13 @@ public class FriendServiceTests {
 	@BeforeEach
 	void setUp() {
 		user = User.builder()
-				.id(1L)
+				.id(UUID.randomUUID())
 				.username("user")
 				.password("")
 				.build();
 		
 		other = User.builder()
-				.id(2L)
+				.id(UUID.randomUUID())
 				.username("other")
 				.password("")
 				.build();

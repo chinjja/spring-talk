@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -75,8 +76,9 @@ public class ChatControllerTests {
 	class WithAuth {
 		@Test
 		void createOpenChat() throws Exception {
+			var uuid = UUID.randomUUID();
 			var chat = Chat.builder()
-					.id(1L)
+					.id(uuid)
 					.title("chat")
 					.description("desc")
 					.joinable(true)
@@ -95,15 +97,16 @@ public class ChatControllerTests {
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isCreated())
-			.andExpect(content().string("1"));
+			.andExpect(content().string(uuid.toString()));
 			
 			verify(chatService).createOpenChat(user, request);
 		}
 		
 		@Test
 		void createDirectChat() throws Exception {
+			var uuid = UUID.randomUUID();
 			var chat = Chat.builder()
-					.id(1L)
+					.id(uuid)
 					.joinable(false)
 					.visible(false)
 					.build();
@@ -118,15 +121,16 @@ public class ChatControllerTests {
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isCreated())
-			.andExpect(content().string("1"));
+			.andExpect(content().string(uuid.toString()));
 			
 			verify(chatService).createDirectChat(user, request);
 		}
 		
 		@Test
 		void createGroupChat() throws Exception {
+			var uuid = UUID.randomUUID();
 			var chat = Chat.builder()
-					.id(1L)
+					.id(uuid)
 					.joinable(false)
 					.visible(false)
 					.build();
@@ -141,7 +145,7 @@ public class ChatControllerTests {
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(request)))
 			.andExpect(status().isCreated())
-			.andExpect(content().string("1"));
+			.andExpect(content().string(uuid.toString()));
 			
 			verify(chatService).createGroupChat(user, request);
 		}
@@ -184,12 +188,14 @@ public class ChatControllerTests {
 		
 		@Test
 		void deleteChat() throws Exception {
+			var uuid = UUID.randomUUID();
 			var chat = Chat.builder()
+					.id(uuid)
 					.build();
-			doReturn(chat).when(stringToChatConverter).convert("1");
+			doReturn(chat).when(stringToChatConverter).convert(uuid.toString());
 			doNothing().when(chatService).deleteChat(chat, user);
 			
-			mockMvc.perform(delete("/chats/1"))
+			mockMvc.perform(delete("/chats/"+uuid))
 			.andExpect(status().isOk());
 			
 			verify(chatService).deleteChat(chat, user);
@@ -197,7 +203,9 @@ public class ChatControllerTests {
 		
 		@Test
 		void getChatInfo() throws Exception {
+			var uuid = UUID.randomUUID();
 			var chat = Chat.builder()
+					.id(uuid)
 					.title("info")
 					.build();
 			
@@ -212,10 +220,10 @@ public class ChatControllerTests {
 					.latestMessage(modelMapper.map(message, ChatMessageDto.class))
 					.build();
 			
-			doReturn(chat).when(stringToChatConverter).convert("1");
+			doReturn(chat).when(stringToChatConverter).convert(uuid.toString());
 			doReturn(info).when(chatService).getChatInfo(chat, user);
 			
-			mockMvc.perform(get("/chats/1/info"))
+			mockMvc.perform(get("/chats/"+uuid+"/info"))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(info)));
 		}

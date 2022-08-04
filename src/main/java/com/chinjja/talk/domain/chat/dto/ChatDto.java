@@ -1,6 +1,7 @@
 package com.chinjja.talk.domain.chat.dto;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import com.chinjja.talk.domain.user.dto.UserDto;
 
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ChatDto {
-	long id;
+	UUID id;
 	boolean visible;
 	boolean joinable;
 	String title;

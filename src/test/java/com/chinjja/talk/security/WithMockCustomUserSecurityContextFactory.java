@@ -1,5 +1,7 @@
 package com.chinjja.talk.security;
 
+import java.util.UUID;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,7 +14,7 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
 	@Override
 	public SecurityContext createSecurityContext(WithMockCustomUser mock) {
 		var principal = User.builder()
-				.id(mock.id())
+				.id(mock.id().isEmpty() ? null : UUID.fromString(mock.id()))
 				.username(mock.username())
 				.password(mock.password())
 				.build();

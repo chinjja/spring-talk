@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -62,13 +63,13 @@ public class FriendControllerTests {
 		user = MockUser.user;
 		
 		other1 = User.builder()
-				.id(2L)
+				.id(UUID.randomUUID())
 				.username("other1")
 				.password("1234")
 				.build();
 		
 		other2 = User.builder()
-				.id(2L)
+				.id(UUID.randomUUID())
 				.username("other2")
 				.password("1234")
 				.build();

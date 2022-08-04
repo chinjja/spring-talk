@@ -2,6 +2,7 @@ package com.chinjja.talk.domain.chat.services;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -131,8 +132,8 @@ public class ChatService {
 		return chatRepository.findByVisible(true);
 	}
 	
-	public Chat getChat(Long id) {
-		return chatRepository.findById(id);
+	public Chat getChat(UUID id) {
+		return chatRepository.findById(id).orElse(null);
 	}
 	
 	public ChatUser getChatUser(Chat chat, User user) {
@@ -230,7 +231,7 @@ public class ChatService {
 		return chatMessageRepository.findByChatAndInstantLessThanOrderByInstantDesc(chat, from, PageRequest.ofSize(limit));
 	}
 	
-	public ChatMessage getMessage(User auth, long id) {
+	public ChatMessage getMessage(User auth, UUID id) {
 		var message = chatMessageRepository.findById(id).get();
 		var chat = message.getChat();
 		checkJoin(chat, auth);

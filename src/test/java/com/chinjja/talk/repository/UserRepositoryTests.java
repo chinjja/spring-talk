@@ -83,6 +83,20 @@ class UserRepositoryTests {
 	}
 	
 	@Test
+	void findById() {
+		var data1 = userRepository.save(User.builder()
+				.username("user@gmail.com")
+				.password("1234")
+				.role("ROLE_USER")
+				.build());
+		entityManager.flush();
+		entityManager.clear();
+		
+		var data2 = userRepository.findById(data1.getId());
+		assertEquals(data1, data2);
+	}
+	
+	@Test
 	void require_password() {
 		assertThrows(Exception.class, () -> {
 			userRepository.save(User.builder()

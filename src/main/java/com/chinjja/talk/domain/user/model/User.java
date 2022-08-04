@@ -2,6 +2,7 @@ package com.chinjja.talk.domain.user.model;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.Column;
@@ -35,7 +36,8 @@ import lombok.ToString;
 public class User implements UserDetails {
 	@Id
 	@GeneratedValue
-	private Long id;
+	@Column(columnDefinition = "BINARY(16)")
+	private UUID id;
 	
 	@Column(unique = true, nullable = false)
 	@Email

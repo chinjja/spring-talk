@@ -1,6 +1,7 @@
 package com.chinjja.talk.domain.chat.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -59,10 +60,10 @@ public class DirectChat {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Id implements Serializable {
-		@Column(name = "user1_id")
-		long user1Id;
+		@Column(name = "user1_id", nullable = false, columnDefinition = "BINARY(16)")
+		UUID user1Id;
 		
-		@Column(name ="user2_id")
-		long user2Id;
+		@Column(name ="user2_id", nullable = false, columnDefinition = "BINARY(16)")
+		UUID user2Id;
 	}
 }

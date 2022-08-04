@@ -61,29 +61,29 @@ public class ChatController {
 	
 	@PostMapping("/open")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Long newOpenChat(
+	public String newOpenChat(
 			@RequestBody NewOpenChatRequest dto,
 			@AuthenticationPrincipal User user) {
 		var chat = chatService.createOpenChat(user, dto);
-		return chat.getId();
+		return chat.getId().toString();
 	}
 	
 	@PostMapping("/group")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Long newGroupChat(
+	public String newGroupChat(
 			@RequestBody NewGroupChatRequest dto,
 			@AuthenticationPrincipal User user) {
 		var chat = chatService.createGroupChat(user, dto);
-		return chat.getId();
+		return chat.getId().toString();
 	}
 	
 	@PostMapping("/direct")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Long newDirectChat(
+	public String newDirectChat(
 			@RequestBody NewDirectChatRequest dto,
 			@AuthenticationPrincipal User user) {
 		var chat = chatService.createDirectChat(user, dto);
-		return chat.getId();
+		return chat.getId().toString();
 	}
 	
 	@DeleteMapping("/{id}")

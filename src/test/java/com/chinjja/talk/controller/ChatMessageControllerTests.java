@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -85,7 +86,7 @@ public class ChatMessageControllerTests {
 					.build();
 			
 			var message = ChatMessage.builder()
-					.id(2L)
+					.id(UUID.randomUUID())
 					.chat(chat)
 					.sender(user)
 					.message("hello")
@@ -122,14 +123,15 @@ public class ChatMessageControllerTests {
 		
 		@Test
 		void getMessageById() throws Exception {
+			var uuid = UUID.randomUUID();
 			var message = ChatMessage.builder()
-					.id(2L)
+					.id(uuid)
 					.build();
 			
 			var res = modelMapper.map(message, ChatMessageDto.class);
-			when(chatService.getMessage(user, 2)).thenReturn(message);
+			when(chatService.getMessage(user, uuid)).thenReturn(message);
 			
-			mockMvc.perform(get("/messages/2"))
+			mockMvc.perform(get("/messages/"+uuid))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(res)));
 		}

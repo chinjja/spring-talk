@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,27 +75,27 @@ class ChatServiceTests {
 	@BeforeEach
 	void setUp() {
 		owner = User.builder()
-				.id(1L)
+				.id(UUID.randomUUID())
 				.username("owner")
 				.password("1234")
 				.build();
 		
 
 		user = User.builder()
-				.id(2L)
+				.id(UUID.randomUUID())
 				.username("user")
 				.password("1234")
 				.build();
 		
 		chat = Chat.builder()
-				.id(1L)
+				.id(UUID.randomUUID())
 				.title("chat1")
 				.owner(owner)
 				.visible(true)
 				.build();
 		
 		chat2 = Chat.builder()
-				.id(1L)
+				.id(UUID.randomUUID())
 				.title("chat2")
 				.owner(owner)
 				.build();
@@ -112,7 +113,7 @@ class ChatServiceTests {
 				.description("desc")
 				.owner(owner)
 				.build();
-		var chat = chatNoId.toBuilder().id(1L).build();
+		var chat = chatNoId.toBuilder().id(UUID.randomUUID()).build();
 		var chatUser = new ChatUser(chat, owner);
 		
 		when(chatRepository.save(chatNoId)).thenReturn(chat);
@@ -153,7 +154,7 @@ class ChatServiceTests {
 	void createDirectChat() {
 		var chatNoId = Chat.builder()
 				.build();
-		var chat = chatNoId.toBuilder().id(1L).build();
+		var chat = chatNoId.toBuilder().id(UUID.randomUUID()).build();
 		
 		var directChat = DirectChat.builder()
 				.chat(chat)
@@ -215,7 +216,7 @@ class ChatServiceTests {
 	@Test
 	void joinToChat() {
 		var chat = Chat.builder()
-				.id(1L)
+				.id(UUID.randomUUID())
 				.joinable(true)
 				.build();
 		var chatUser = new ChatUser(chat, user);
@@ -263,7 +264,7 @@ class ChatServiceTests {
 	@Test
 	void leaveFromChat() {
 		var chat = Chat.builder()
-				.id(2L)
+				.id(UUID.randomUUID())
 				.joinable(true)
 				.build();
 		var chatUser = new ChatUser(chat, user);
@@ -296,7 +297,7 @@ class ChatServiceTests {
 	@Test
 	void sendMessage() {
 		var message = ChatMessage.builder()
-				.id(1L)
+				.id(UUID.randomUUID())
 				.chat(chat)
 				.sender(user)
 				.message("hello")
@@ -322,7 +323,7 @@ class ChatServiceTests {
 	@Test
 	void getMessageList() {
 		var message = ChatMessage.builder()
-				.id(1L)
+				.id(UUID.randomUUID())
 				.chat(chat)
 				.sender(user)
 				.message("hello")
@@ -372,17 +373,17 @@ class ChatServiceTests {
 	@Test
 	void invite() {
 		var chat = Chat.builder()
-				.id(1L)
+				.id(UUID.randomUUID())
 				.joinable(true)
 				.build();
 		
 		var user1 = User.builder()
-				.id(10L)
+				.id(UUID.randomUUID())
 				.username("user1")
 				.build();
 		
 		var user2 = User.builder()
-				.id(11L)
+				.id(UUID.randomUUID())
 				.username("user2")
 				.build();
 		var chatUser1 = new ChatUser(chat, user1);
@@ -413,9 +414,10 @@ class ChatServiceTests {
 		var message = ChatMessage.builder()
 				.chat(chat)
 				.build();
-		when(chatMessageRepository.findById(1L)).thenReturn(Optional.of(message));
+		var uuid = UUID.randomUUID();
+		when(chatMessageRepository.findById(uuid)).thenReturn(Optional.of(message));
 		when(chatUserRepository.existsByChatAndUser(any(), any())).thenReturn(true);
-		var res = chatService.getMessage(user, 1);
+		var res = chatService.getMessage(user, uuid);
 		assertEquals(message, res);
 	}
 	
@@ -426,10 +428,11 @@ class ChatServiceTests {
 		var message = ChatMessage.builder()
 				.chat(chat)
 				.build();
-		when(chatMessageRepository.findById(1L)).thenReturn(Optional.of(message));
+		var uuid = UUID.randomUUID();
+		when(chatMessageRepository.findById(uuid)).thenReturn(Optional.of(message));
 		when(chatUserRepository.existsByChatAndUser(any(), any())).thenReturn(false);
 		assertThrows(NotJoinException.class, () -> {
-			chatService.getMessage(user, 1);
+			chatService.getMessage(user, uuid);
 		});
 	}
 }

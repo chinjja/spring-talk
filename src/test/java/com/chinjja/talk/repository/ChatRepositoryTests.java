@@ -106,7 +106,7 @@ class ChatRepositoryTests {
 		
 		@Test
 		void find_by_id() {
-			var data = chatRepository.findById(userChat2.getId());
+			var data = chatRepository.findById(userChat2.getId()).get();
 			assertEquals(userChat2.getId(), data.getId());
 		}
 	}

@@ -3,6 +3,7 @@ package com.chinjja.talk.domain.chat.model;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -57,10 +58,10 @@ public class ChatUser {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Id implements Serializable {
-		@Column(name = "chat_id")
-		private long chatId;
+		@Column(name = "chat_id", nullable = false, columnDefinition = "BINARY(16)")
+		UUID chatId;
 		
-		@Column(name ="user_id")
-		private long userId;
+		@Column(name ="user_id", nullable = false, columnDefinition = "BINARY(16)")
+		UUID userId;
 	}
 }

@@ -1,6 +1,7 @@
 package com.chinjja.talk.domain.messenger.services;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -13,6 +14,7 @@ import com.chinjja.talk.domain.chat.model.Chat;
 import com.chinjja.talk.domain.chat.model.ChatMessage;
 import com.chinjja.talk.domain.chat.model.ChatUser;
 import com.chinjja.talk.domain.messenger.dto.ChatMessengerDto;
+import com.chinjja.talk.domain.messenger.dto.UserMessengerDto;
 import com.chinjja.talk.domain.user.converter.FriendToFriendDtoConverter;
 import com.chinjja.talk.domain.user.converter.UserToUserDtoConverter;
 import com.chinjja.talk.domain.user.model.Friend;
@@ -51,7 +53,7 @@ public class MessengerService {
 		toChat(chat.getId(), command, objectType, payload);
 	}
 	
-	private void toChat(Long chatId, String command, String objectType, Object payload) {
+	private void toChat(UUID chatId, String command, String objectType, Object payload) {
 		var data = ChatMessengerDto.builder()
 				.chatId(chatId)
 				.objectType(objectType)
@@ -75,8 +77,7 @@ public class MessengerService {
 	}
 	
 	private void toUser(User user, String command, String objectType, Object payload) {
-		var data = ChatMessengerDto.builder()
-				.chatId(0)
+		var data = UserMessengerDto.builder()
 				.objectType(objectType)
 				.command(command)
 				.data(payload)

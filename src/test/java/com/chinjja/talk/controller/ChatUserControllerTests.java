@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -69,16 +70,18 @@ public class ChatUserControllerTests {
 	@Nested
 	@WithMockCustomUser
 	class WithAuth {
+		UUID uuid;
 		Chat chat;
 		
 		@BeforeEach
 		void setUp() {
+			uuid = UUID.randomUUID();
 			chat = Chat.builder()
-					.id(2L)
+					.id(uuid)
 					.title("chat")
 					.build();
 			
-			when(stringToChatConverter.convert("1")).thenReturn(chat);
+			when(stringToChatConverter.convert(uuid.toString())).thenReturn(chat);
 		}
 		@Test
 		void invite() throws Exception {
@@ -87,7 +90,7 @@ public class ChatUserControllerTests {
 					.build();
 			
 			mockMvc.perform(post("/chat-users/invite")
-					.param("chatId", "1")
+					.param("chatId", uuid.toString())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(dto)))
 			.andExpect(status().isOk());
@@ -105,7 +108,7 @@ public class ChatUserControllerTests {
 			when(chatService.getUserList(chat, user)).thenReturn(res);
 			
 			mockMvc.perform(get("/chat-users")
-					.param("chatId", "1"))
+					.param("chatId", uuid.toString()))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
 		}
@@ -116,7 +119,7 @@ public class ChatUserControllerTests {
 			
 			when(chatService.joinToChat(chat, user)).thenReturn(res);
 			mockMvc.perform(post("/chat-users/join")
-					.param("chatId", "1"))
+					.param("chatId", uuid.toString()))
 			.andExpect(status().isOk());
 			
 			verify(chatService).joinToChat(chat, user);
@@ -125,7 +128,7 @@ public class ChatUserControllerTests {
 		@Test
 		void leave() throws Exception {
 			mockMvc.perform(post("/chat-users/leave")
-					.param("chatId", "1"))
+					.param("chatId", uuid.toString()))
 			.andExpect(status().isOk())
 			.andExpect(content().string(""));
 			

@@ -1,6 +1,7 @@
 package com.chinjja.talk.domain.user.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -45,10 +46,10 @@ public class Friend {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Id implements Serializable {
-		@Column(name = "owner_id")
-		private long ownerId;
+		@Column(name = "owner_id", nullable = false, columnDefinition = "BINARY(16)")
+		private UUID ownerId;
 		
-		@Column(name = "user_id")
-		private long userId;
+		@Column(name = "user_id", nullable = false, columnDefinition = "BINARY(16)")
+		private UUID userId;
 	}
 }

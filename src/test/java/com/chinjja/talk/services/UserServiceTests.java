@@ -61,7 +61,7 @@ class UserServiceTests {
 	@BeforeEach
 	void setUp() {
 		user = User.builder()
-				.id(1L)
+				.id(UUID.randomUUID())
 				.username("username")
 				.password("password")
 				.build();
@@ -127,11 +127,11 @@ class UserServiceTests {
 					.build();
 
 			user1 = User.builder()
-					.id(100L)
+					.id(UUID.randomUUID())
 					.username("user1")
 					.build();
 			user2 = User.builder()
-					.id(101L)
+					.id(UUID.randomUUID())
 					.username("user2")
 					.build();
 			friend1 = new Friend(user, user1);

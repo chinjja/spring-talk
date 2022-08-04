@@ -2,6 +2,7 @@ package com.chinjja.talk.domain.chat.dao;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -10,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.chinjja.talk.domain.chat.model.Chat;
 import com.chinjja.talk.domain.chat.model.ChatMessage;
 
-public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
+public interface ChatMessageRepository extends JpaRepository<ChatMessage, UUID> {
 	ChatMessage findTop1ByChatOrderByInstantDesc(Chat chat);
 	
 	@EntityGraph(attributePaths = "sender")

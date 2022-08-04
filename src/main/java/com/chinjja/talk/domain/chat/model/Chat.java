@@ -2,6 +2,7 @@ package com.chinjja.talk.domain.chat.model;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,7 +31,8 @@ import lombok.ToString;
 public class Chat {
 	@Id
 	@GeneratedValue
-	private Long id;
+	@Column(columnDefinition = "BINARY(16)")
+	private UUID id;
 	
 	private boolean visible;
 	private boolean joinable;

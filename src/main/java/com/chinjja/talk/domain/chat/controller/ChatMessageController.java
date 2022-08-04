@@ -2,6 +2,7 @@ package com.chinjja.talk.domain.chat.controller;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,7 +37,7 @@ public class ChatMessageController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Long newMessage(
+	public UUID newMessage(
 			@RequestBody NewMessageRequest dto,
 			@RequestParam("chatId") Chat chat,
 			@AuthenticationPrincipal User user) {
@@ -62,7 +63,7 @@ public class ChatMessageController {
 	
 	@GetMapping("/{id}")
 	public ChatMessageDto getMessage(
-			@PathVariable("id") long id,
+			@PathVariable("id") UUID id,
 			@AuthenticationPrincipal User user) {
 		var msg = chatService.getMessage(user, id);
 		return toChatMessageDtoConverter.convert(msg);
