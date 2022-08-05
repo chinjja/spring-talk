@@ -17,6 +17,7 @@ public class ChatDto {
 	long id;
 	boolean visible;
 	boolean joinable;
+	String type;
 	String title;
 	String description;
 	UserDto owner;

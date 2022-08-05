@@ -35,6 +35,8 @@ public class Chat {
 	private boolean visible;
 	private boolean joinable;
 	
+	@Column(nullable = false)
+	private String type;
 	private String title;
 	private String description;
 	

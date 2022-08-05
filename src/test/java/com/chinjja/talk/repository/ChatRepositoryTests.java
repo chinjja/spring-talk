@@ -49,6 +49,7 @@ class ChatRepositoryTests {
 	@Test
 	void save() {
 		var data = chatRepository.save(Chat.builder()
+				.type("type")
 				.joinable(true)
 				.visible(true)
 				.owner(owner)
@@ -59,6 +60,7 @@ class ChatRepositoryTests {
 
 		assertNotNull(data.getId());
 		assertNotNull(data.getCreatedAt());
+		assertEquals("type", data.getType());
 		assertEquals(owner, data.getOwner());
 		assertEquals("chat1", data.getTitle());
 		assertEquals("description", data.getDescription());
@@ -75,18 +77,21 @@ class ChatRepositoryTests {
 		@BeforeEach
 		void setUp() {
 			ownerChat = chatRepository.save(Chat.builder()
+					.type("type")
 					.owner(owner)
 					.visible(true)
 					.title("owner chat")
 					.build());
 
 			userChat1 = chatRepository.save(Chat.builder()
+					.type("type")
 					.owner(user)
 					.visible(true)
 					.title("user chat1")
 					.build());
 
 			userChat2 = chatRepository.save(Chat.builder()
+					.type("type")
 					.owner(user)
 					.visible(false)
 					.title("user chat2")

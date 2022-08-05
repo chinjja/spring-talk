@@ -52,6 +52,7 @@ public class ChatService {
 	public Chat createOpenChat(User owner, NewOpenChatRequest dto) {
 		var chat = chatRepository.save(Chat.builder()
 				.owner(owner)
+				.type("open")
 				.visible(dto.isVisible())
 				.joinable(true)
 				.title(dto.getTitle())
@@ -69,6 +70,7 @@ public class ChatService {
 			throw new IllegalArgumentException("already exists direct chat");
 		}
 		var chat = chatRepository.save(Chat.builder()
+				.type("direct")
 				.visible(false)
 				.joinable(false)
 				.build());
@@ -87,6 +89,7 @@ public class ChatService {
 	@Transactional
 	public Chat createGroupChat(User user, NewGroupChatRequest dto) {
 		var chat = chatRepository.save(Chat.builder()
+				.type("group")
 				.visible(false)
 				.joinable(true)
 				.title(dto.getTitle())

@@ -52,6 +52,7 @@ class ChatUserRepositoryTests {
 				.build());
 		chat = chatRepository.save(Chat.builder()
 				.owner(owner)
+				.type("type")
 				.title("chat1")
 				.build());
 		entityManager.flush();

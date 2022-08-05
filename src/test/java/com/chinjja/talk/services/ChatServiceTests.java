@@ -109,6 +109,7 @@ class ChatServiceTests {
 		var chatNoId = Chat.builder()
 				.visible(true)
 				.joinable(true)
+				.type("open")
 				.title("chat1")
 				.description("desc")
 				.owner(owner)
@@ -149,6 +150,7 @@ class ChatServiceTests {
 	@Test
 	void createDirectChat() {
 		var chatNoId = Chat.builder()
+				.type("direct")
 				.build();
 		var chat = chatNoId.toBuilder().id(1L).build();
 		
