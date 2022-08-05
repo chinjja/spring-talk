@@ -1,6 +1,7 @@
 package com.chinjja.talk.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -136,11 +137,7 @@ class ChatServiceTests {
 	
 	@Test
 	void whenDirectChatExists_thenShouldThrowException() {
-		var d = DirectChat.builder()
-				.user1(user)
-				.user2(owner)
-				.build();
-		when(directChatRepository.findByUser1AndUser2(any(), any())).thenReturn(d);
+		when(directChatRepository.existsByUser1AndUser2(any(), any())).thenReturn(true);
 		
 		assertThrows(Exception.class, () -> {
 			chatService.createDirectChat(user, NewDirectChatRequest.builder()
@@ -175,7 +172,6 @@ class ChatServiceTests {
 		
 		assertEquals(chat, savedChat);
 		
-		verify(directChatRepository).findByUser1AndUser2(owner, user);
 		verify(directChatRepository).save(directChat);
 		verify(chatRepository).save(chatNoId);
 		verify(chatUserRepository).save(chatUser1);
@@ -186,6 +182,27 @@ class ChatServiceTests {
 		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.ADDED, chatUser1));
 		verify(applicationEventPublisher).publishEvent(new ChatUserEvent(Event.ADDED, chatUser2));
 		verifyNoMoreInteractions(applicationEventPublisher);
+	}
+	
+	@Test
+	void getDirectChat() {
+		var directChat = DirectChat.builder()
+				.user1(owner)
+				.user2(user)
+				.chat(chat)
+				.build();
+		when(directChatRepository.findByUser1AndUser2(owner, user)).thenReturn(directChat);
+		
+		var res = chatService.getDirectChat(owner, user);
+		assertEquals(res, chat);
+	}
+	
+	@Test
+	void whenDirectChatNotExists_thenReturnNull() {
+		when(directChatRepository.findByUser1AndUser2(owner, user)).thenReturn(null);
+		
+		var res = chatService.getDirectChat(owner, user);
+		assertNull(res);
 	}
 	
 	@Test

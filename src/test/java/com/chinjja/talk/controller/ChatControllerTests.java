@@ -3,6 +3,7 @@ package com.chinjja.talk.controller;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -180,6 +181,30 @@ public class ChatControllerTests {
 					.param("type", "join"))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
+		}
+		
+		@Test
+		void getDirectChat() throws Exception {
+			var chat = Chat.builder()
+					.title("chat")
+					.build();
+			var dto = modelMapper.map(chat, ChatDto.class);
+
+			when(userService.getByUsername("user")).thenReturn(user);
+			when(chatService.getDirectChat(user, user)).thenReturn(chat);
+			
+			mockMvc.perform(get("/chats/direct/user"))
+			.andExpect(status().isOk())
+			.andExpect(content().json(objectMapper.writeValueAsString(dto)));
+		}
+		
+		@Test
+		void whenDirectChatNotExists_thenReturn404() throws Exception {
+			when(userService.getByUsername("user")).thenReturn(user);
+			when(chatService.getDirectChat(user, user)).thenReturn(null);
+			
+			mockMvc.perform(get("/chats/direct/user"))
+			.andExpect(status().isNotFound());
 		}
 		
 		@Test

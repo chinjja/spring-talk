@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.chinjja.talk.domain.chat.converter.ChatToChatDtoConverter;
 import com.chinjja.talk.domain.chat.dto.ChatDto;
@@ -84,6 +85,15 @@ public class ChatController {
 			@AuthenticationPrincipal User user) {
 		var chat = chatService.createDirectChat(user, dto);
 		return chat.getId();
+	}
+	
+	@GetMapping("/direct/{username}")
+	public ChatDto getDirectChat(
+			@PathVariable("username") User user,
+			@AuthenticationPrincipal User auth) {
+		var chat = chatService.getDirectChat(auth, user);
+		if(chat == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		return toChatDtoConverter.convert(chat);
 	}
 	
 	@DeleteMapping("/{id}")

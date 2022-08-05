@@ -65,8 +65,7 @@ public class ChatService {
 	@Transactional
 	public Chat createDirectChat(User user, NewDirectChatRequest dto) {
 		var other = userService.getByUsername(dto.getUsername());
-		var directChat = getDirectChat(user, other);
-		if(directChat != null) {
+		if(existsDirectChat(user, other)) {
 			throw new IllegalArgumentException("already exists direct chat");
 		}
 		var chat = chatRepository.save(Chat.builder()
@@ -74,7 +73,7 @@ public class ChatService {
 				.joinable(false)
 				.build());
 		
-		directChat = directChatRepository.save(DirectChat.builder()
+		directChatRepository.save(DirectChat.builder()
 				.chat(chat)
 				.user1(user)
 				.user2(other)
@@ -115,10 +114,19 @@ public class ChatService {
 		chatRepository.delete(chat);
 	}
 	
-	public DirectChat getDirectChat(User user1, User user2) {
-		var chat = directChatRepository.findByUser1AndUser2(user1, user2);
-		if(chat != null) return chat;
-		return directChatRepository.findByUser1AndUser2(user2, user1);
+	public boolean existsDirectChat(User user, User oppo) {
+		return directChatRepository.existsByUser1AndUser2(user, oppo)
+				|| directChatRepository.existsByUser1AndUser2(oppo, user);
+	}
+	
+	public Chat getDirectChat(User user1, User user2) {
+		var direct = directChatRepository.findByUser1AndUser2(user1, user2);
+		if(direct != null) return direct.getChat();
+		
+		direct = directChatRepository.findByUser1AndUser2(user2, user1);
+		if(direct != null) return direct.getChat();
+		
+		return null;
 	}
 	
 	public List<Chat> getJoinedChatList(User user) {
