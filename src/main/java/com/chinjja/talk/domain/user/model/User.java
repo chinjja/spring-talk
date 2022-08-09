@@ -57,6 +57,7 @@ public class User implements UserDetails {
 	private String name;
 	private String state;
 
+	@JsonIgnore
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return roles.stream().map(x -> new SimpleGrantedAuthority(x)).collect(Collectors.toSet());

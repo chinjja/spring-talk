@@ -2,6 +2,7 @@ package com.chinjja.talk.domain.chat.dao;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 
@@ -14,6 +15,9 @@ public interface ChatUserRepository extends CrudRepository<ChatUser, ChatUser.Id
 	
 	@EntityGraph(attributePaths = "user")
 	List<ChatUser> findByChat(Chat chat);
+	
+	@EntityGraph(attributePaths = "user")
+	List<ChatUser> findByChat(Chat chat, Pageable pageable);
 	ChatUser findByChatAndUser(Chat chat, User user);
 	boolean existsByChatAndUser(Chat chat, User user);
 	boolean existsByChat(Chat chat);

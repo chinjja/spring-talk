@@ -155,6 +155,11 @@ public class ChatService {
 		return chatUserRepository.findByChat(chat);
 	}
 	
+	public List<ChatUser> getUserList(Chat chat, User user, int size) {
+		checkJoin(chat, user);
+		return chatUserRepository.findByChat(chat, PageRequest.ofSize(size));
+	}
+	
 	public int getUserCount(Chat chat, User user) {
 		checkJoin(chat, user);
 		return chatUserRepository.countByChat(chat);
@@ -276,10 +281,14 @@ public class ChatService {
 		var userCount = getUserCount(chat, user);
 		var message = getLatestMessage(chat, user);
 		var messageDto = message == null ? null : modelMapper.map(message, ChatMessageDto.class);
+		var users = getUserList(chat, user, 4).stream()
+				.map(e -> e.getUser())
+				.collect(Collectors.toList());
 		return ChatInfoDto.builder()
 				.unreadCount(unreadCount)
 				.userCount(userCount)
 				.latestMessage(messageDto)
+				.users(users)
 				.build();
 	}
 	
